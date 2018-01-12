@@ -1,0 +1,5 @@
+newCharacter
+
+changeCharacter
+
+removeCharacter
