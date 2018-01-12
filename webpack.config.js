@@ -10,6 +10,12 @@ module.exports = {
     path: join(__dirname, 'dist'),
     filename: '[name].js',
   },
+  resolve: {
+    alias: {
+      'react': 'preact-compat',
+      'react-dom': 'preact-compat',
+    },
+  },
   module: {
     rules: [
       {
