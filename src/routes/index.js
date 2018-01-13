@@ -6,10 +6,10 @@ import Character from './character';
 import Start from './start';
 
 const Routes = () => (
-  <Switch>
+  <div>
     <Route exact path="/" component={Start} />
-    <Route path="/character" component={Character} />
-  </Switch>
+    <Route exact path="/character/:id" component={Character} />
+  </div>
 );
 
 export default Routes;

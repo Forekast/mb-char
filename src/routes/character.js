@@ -1,7 +1,349 @@
 import {h} from 'preact';
+import {connect} from 'react-redux';
+import {compose, curry} from 'ramda';
+import {debounce as throttle} from 'lodash';
+import DocumentTitle from 'react-document-title';
 
-const Character = () => (
-  <div>Character</div>
+import {Form, Input, Header, Button, Label} from 'semantic-ui-react';
+import 'semantic-ui-css/semantic.css';
+
+import {
+  changeCharacter,
+  newCharacterBurden,
+  changeCharacterBurden,
+  removeCharacterBurden,
+} from '../actions';
+import {character as characterSel} from '../selectors';
+
+const _CharacterOverview = ({
+  overview,
+  changeName,
+  changeConcept,
+  changeCrewName,
+  changeCause,
+  changeTarget,
+  changeMethod,
+  changeRace,
+  changeSex,
+  changeAge,
+  changeHeight,
+  changeWeight,
+}) => (
+  <div>
+    <Header>Overview</Header>
+    <Input label="Character Name"
+      defaultValue={overview.name} onBlur={changeName} />
+    <Input label="Concept"
+      defaultValue={overview.concept} onChange={changeConcept} />
+    <Input label="Crew Name"
+      defaultValue={overview.crewName} onChange={changeCrewName} />
+    <Input label="Cause" defaultValue={overview.cause}
+      onChange={changeCause} />
+    <Input label="Target" defaultValue={overview.target}
+      onChange={changeTarget} />
+    <Input label="Method" defaultValue={overview.method}
+      onChange={changeMethod} />
+    <Input label="Race" defaultValue={overview.race}
+      onChange={changeRace} />
+    <Input label="Sex" defaultValue={overview.sex}
+      onChange={changeSex} />
+    <Input label="Age" defaultValue={overview.age}
+      onChange={changeAge} />
+    <Input label="Height" defaultValue={overview.height}
+      onChange={changeHeight} />
+    <Input label="Weight" defaultValue={overview.weight}
+      onChange={changeWeight} />
+  </div>
 );
 
-export default Character;
+const fromEvent = ev => ev.target.value;
+
+const CharacterOverview = connect(
+  (state, {id}) => ({
+    overview: characterSel.overviewInRoot(id, state),
+  }),
+  (dispatch, {id}) => ({
+    changeName: (
+      compose(dispatch, curry(changeCharacter)({id, key: 'name'}), fromEvent)
+    ),
+    changeConcept: throttle(
+      compose(dispatch, curry(changeCharacter)({id, key: 'concept'}), fromEvent),
+      1000
+    ),
+    changeCrewName: throttle(
+      compose(dispatch, curry(changeCharacter)({id, key: 'crewName'}), fromEvent),
+      1000
+    ),
+    changeCause: throttle(
+      compose(dispatch, curry(changeCharacter)({id, key: 'cause'}), fromEvent),
+      1000
+    ),
+    changeTarget: throttle(
+      compose(dispatch, curry(changeCharacter)({id, key: 'target'}), fromEvent),
+      1000
+    ),
+    changeMethod: throttle(
+      compose(dispatch, curry(changeCharacter)({id, key: 'method'}), fromEvent),
+      1000
+    ),
+    changeRace: throttle(
+      compose(dispatch, curry(changeCharacter)({id, key: 'race'}), fromEvent),
+      1000
+    ),
+    changeSex: throttle(
+      compose(dispatch, curry(changeCharacter)({id, key: 'sex'}), fromEvent),
+      1000
+    ),
+    changeAge: throttle(
+      compose(dispatch, curry(changeCharacter)({id, key: 'age'}), fromEvent),
+      1000
+    ),
+    changeHeight: throttle(
+      compose(dispatch, curry(changeCharacter)({id, key: 'height'}), fromEvent),
+      1000
+    ),
+    changeWeight: throttle(
+      compose(dispatch, curry(changeCharacter)({id, key: 'weight'}), fromEvent),
+      1000
+    ),
+  })
+)(_CharacterOverview);
+
+const _CharacterBurden = ({burden, changeBurden, removeBurden}) => (
+  <div>
+    <Input defaultValue={burden} onChange={changeBurden} />
+    <Button icon="delete" onClick={removeBurden} />
+  </div>
+);
+
+const CharacterBurden = connect(
+  (state, {id, burdenIndex}) => ({
+    burden: characterSel.burdensInRoot(id, state)[burdenIndex],
+  }),
+  (dispatch, {id, burdenIndex}) => ({
+    changeBurden: throttle(compose(
+      dispatch,
+      curry(changeCharacterBurden)({id}, burdenIndex),
+      fromEvent
+    ), 1000),
+    removeBurden: compose(
+      dispatch,
+      () => removeCharacterBurden({id}, burdenIndex)
+    ),
+  })
+)(_CharacterBurden);
+
+const _CharacterTraits = ({
+  id,
+  burdens,
+  drive,
+  profession,
+  specialty,
+  feature,
+  personality,
+  changeDrive,
+  changeProfession,
+  changeSpecialty,
+  changeFeature,
+  changePersonality,
+  newBurden,
+}) => (
+  <div>
+    <div>
+      <Header>Traits</Header>
+      <Input label="Drive" defaultValue={drive} onChange={changeDrive} />
+      <Input label="Profession" defaultValue={profession} onChange={changeProfession} />
+      <Input label="Specialty" defaultValue={specialty} onChange={changeSpecialty} />
+      <Input label="Feature" defaultValue={feature} onChange={changeFeature} />
+      <Input label="Personality" defaultValue={personality} onChange={changePersonality} />
+    </div>
+    <div>
+      <Header>Burdens</Header>
+      {
+        Array(burdens)
+        .fill(0)
+        .map((_, i) => <CharacterBurden id={id} burdenIndex={i} />)
+      }
+      <Button icon="add" onClick={newBurden} />
+    </div>
+  </div>
+);
+
+const CharacterTraits = connect(
+  (state, {id}) => ({
+    drive: characterSel.traitsInRoot(id, state).drive,
+    profession: characterSel.traitsInRoot(id, state).profession,
+    specialty: characterSel.traitsInRoot(id, state).specialty,
+    feature: characterSel.traitsInRoot(id, state).feature,
+    personality: characterSel.traitsInRoot(id, state).personality,
+    burdens: characterSel.burdensInRoot(id, state).length,
+  }),
+  (dispatch, {id}) => ({
+    changeDrive: (
+      throttle(compose(
+        dispatch,
+        curry(changeCharacter)({id, key: 'drive'}),
+        fromEvent
+      ), 1000)
+    ),
+    changeProfession: (
+      throttle(compose(
+        dispatch,
+        curry(changeCharacter)({id, key: 'profession'}),
+        fromEvent
+      ), 1000)
+    ),
+    changeSpecialty: (
+      throttle(compose(
+        dispatch,
+        curry(changeCharacter)({id, key: 'specialty'}),
+        fromEvent
+      ), 1000)
+    ),
+    changeFeature: (
+      throttle(compose(
+        dispatch,
+        curry(changeCharacter)({id, key: 'feature'}),
+        fromEvent
+      ), 1000)
+    ),
+    changePersonality: (
+      throttle(compose(
+        dispatch,
+        curry(changeCharacter)({id, key: 'personality'}),
+        fromEvent
+      ), 1000)
+    ),
+    newBurden: compose(dispatch, () => newCharacterBurden({id})),
+  })
+)(_CharacterTraits);
+
+const _AttributeScore = ({label, value, change}) => (
+  <Input label={label} defaultValue={value} onChange={change} />
+);
+
+const AttributeScore = connect(
+  (state, {id, score}) => ({
+    value: characterSel.scoresInRoot(id, state)[score],
+  }),
+  (dispatch, {id, score}) => ({
+    change: throttle(compose(
+      dispatch,
+      curry(changeCharacter)({id, key: score}),
+      v => Number(v) || 0,
+      fromEvent
+    ), 1000),
+  })
+)(_AttributeScore);
+
+const _StandingScore = ({label, value, spentValue, changeValue, changeSpent}) => (
+  <div>
+    <Input label={label} defaultValue={value} onChange={changeValue} />
+    <Input label="spent" defaultValue={spentValue} onChange={changeSpent} />
+  </div>
+);
+
+const StandingScore = connect(
+  (state, {id, score}) => ({
+    value: characterSel.scoresInRoot(id, state)[score],
+    spentValue: characterSel.scoresInRoot(id, state)[`${score}Less`],
+  }),
+  (dispatch, {id, score}) => ({
+    changeValue: throttle(compose(
+      dispatch,
+      curry(changeCharacter)({id, key: score}),
+      v => Number(v) || 0,
+      fromEvent
+    ), 1000),
+    changeSpent: throttle(compose(
+      dispatch,
+      curry(changeCharacter)({id, key: `${score}Less`}),
+      v => Number(v) || 0,
+      fromEvent
+    ), 1000),
+  })
+)(_StandingScore);
+
+const _ResilienceScore = ({
+  label,
+  value, changeValue,
+  damageValue, changeDamage,
+  bonusValue, changeBonus,
+}) => (
+  <div>
+    <Input label="bonus" defaultValue={bonusValue} onChange={changeBonus} />
+    <Input label="damage" defaultValue={damageValue} onChange={changeDamage} />
+    <span><Label>{label}</Label>{value}</span>
+  </div>
+);
+
+const ResilienceScore = connect(
+  (state, {id, score, attribute, standing}) => ({
+    value: (
+      characterSel.scoresInRoot(id, state)[attribute] +
+      characterSel.scoresInRoot(id, state)[standing] +
+      characterSel.scoresInRoot(id, state)[`${standing}Less`] +
+      characterSel.scoresInRoot(id, state)[`${score}Less`] +
+      characterSel.scoresInRoot(id, state)[`${score}Bonus`]
+    ),
+    damageValue: characterSel.scoresInRoot(id, state)[`${score}Less`],
+    bonusValue: characterSel.scoresInRoot(id, state)[`${score}Bonus`],
+  }),
+  (dispatch, {id, score}) => ({
+    changeDamage: throttle(compose(
+      dispatch,
+      curry(changeCharacter)({id, key: `${score}Less`}),
+      v => Number(v) || 0,
+      fromEvent
+    ), 1000),
+    changeBonus: throttle(compose(
+      dispatch,
+      curry(changeCharacter)({id, key: `${score}Bonus`}),
+      v => Number(v) || 0,
+      fromEvent
+    ), 1000),
+  })
+)(_ResilienceScore);
+
+const CharacterScores = ({id}) => (
+  <div>
+    <Header>Scores</Header>
+    <div>
+      <Header>Attributes</Header>
+      <AttributeScore id={id} label="Physique" score="physique" />
+      <AttributeScore id={id} label="Charm" score="charm" />
+      <AttributeScore id={id} label="Wits" score="wits" />
+    </div>
+    <div>
+      <Header>Standing</Header>
+      <StandingScore id={id} label="Resources" score="resources" />
+      <StandingScore id={id} label="Influence" score="influence" />
+      <StandingScore id={id} label="Spirit" score="spirit" />
+    </div>
+    <div>
+      <Header>Resilience</Header>
+      <ResilienceScore id={id} label="Health" score="health"
+        attribute="physique" standing="resources" />
+      <ResilienceScore id={id} label="Reputation" score="reputation"
+        attribute="charm" standing="influence" />
+      <ResilienceScore id={id} label="Willpower" score="willpower"
+        attribute="wits" standing="spirit" />
+    </div>
+  </div>
+);
+
+const Character = ({characterName, match}) => (
+  <DocumentTitle title={`Mistborn RPG: ${characterName}`}>
+    <div>
+      <CharacterOverview id={match.params.id} />
+      <CharacterScores id={match.params.id} />
+      <CharacterTraits id={match.params.id} />
+    </div>
+  </DocumentTitle>
+);
+
+export default connect(
+  (state, {match}) => ({
+    characterName: characterSel.overviewInRoot(match.params.id, state).name,
+  })
+)(Character);

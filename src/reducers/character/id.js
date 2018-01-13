@@ -8,7 +8,8 @@ const id = (state = {}, action) => {
   switch (action.type) {
   case NEW_CHARACTER:
     return {
-      code: action.id ? action.id.code : createId(),
+      code: typeof action.id !== 'undefined' ? action.id : createId(),
+      owner: typeof action.id !== 'undefined' ? false : true,
     };
   default:
     return state;

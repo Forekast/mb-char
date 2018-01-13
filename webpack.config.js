@@ -36,6 +36,7 @@ module.exports = {
       },
       {
         test: /\.css$/,
+        exclude: join(__dirname, 'node_modules'),
         use: [
           'style-loader',
           {
@@ -46,6 +47,23 @@ module.exports = {
           },
           'postcss-loader',
         ],
+      },
+      {
+        test: /\.css$/,
+        include: join(__dirname, 'node_modules'),
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              module: false,
+            },
+          },
+        ],
+      },
+      {
+        test: /\.(png|jpg|jpeg|webp|gif|bmp|tiff|svg|ttf|woff|woff2|eot)$/,
+        use: ['file-loader'],
       },
     ],
   },

@@ -13,17 +13,24 @@ const characterSet = (state = [], action) => {
     return state.concat(character({}, action));
   case CHANGE_CHARACTER:
     index = state.findIndex(c => c.id.code === action.id);
-    return state
-      .slice(0, index)
-      .concat(character(state[index], action), state.slice(index + 1));
+    return [].concat(
+      state.slice(0, index),
+      character(state[index], action),
+      state.slice(index + 1)
+    );
   case REMOVE_CHARACTER:
     index = state.findIndex(c => c.id.code === action.id);
-    return state.slice(0, index).concat(state.slice(index + 1));
+    return [].concat(
+      state.slice(0, index),
+      state.slice(index + 1)
+    );
   default:
     return state;
   }
 };
 
-export default combineReducers({
+export const object = {
   characterSet,
-});
+};
+
+export default combineReducers(object);
