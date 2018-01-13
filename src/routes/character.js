@@ -4,7 +4,7 @@ import {compose, curry} from 'ramda';
 import {debounce as throttle} from 'lodash';
 import DocumentTitle from 'react-document-title';
 
-import {Form, Input, Header, Button, Label} from 'semantic-ui-react';
+import {Form, Input, Header, Button, Label, TextArea, Grid, Checkbox} from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.css';
 
 import {
@@ -12,8 +12,19 @@ import {
   newCharacterBurden,
   changeCharacterBurden,
   removeCharacterBurden,
+  newCharacterPower,
+  changeCharacterPower,
+  removeCharacterPower,
+  newCharacterStunt,
+  changeCharacterStunt,
+  removeCharacterStunt,
+  newCharacterEquipment,
+  changeCharacterEquipment,
+  removeCharacterEquipment,
 } from '../actions';
 import {character as characterSel} from '../selectors';
+
+const fromEvent = ev => ev.target.value;
 
 const _CharacterOverview = ({
   overview,
@@ -55,8 +66,6 @@ const _CharacterOverview = ({
       onChange={changeWeight} />
   </div>
 );
-
-const fromEvent = ev => ev.target.value;
 
 const CharacterOverview = connect(
   (state, {id}) => ({
@@ -332,12 +341,246 @@ const CharacterScores = ({id}) => (
   </div>
 );
 
+const _CharacterLore = ({
+  lore,
+  changeTragedy,
+  changeDestiny,
+  changeSecretsknown,
+}) => (
+  <Form>
+    <Header>Lore</Header>
+  <Grid columns="3">
+    <Grid.Column><Form.Field inline>
+      <Form.Label>Tragedy</Form.Label>
+      <Form.TextArea defaultValue={lore.tragedy} onChange={changeTragedy} />
+    </Form.Field></Grid.Column>
+    <Grid.Column><Form.Field inline>
+      <Form.Label>Destiny</Form.Label>
+      <Form.TextArea defaultValue={lore.destiny} onChange={changeDestiny} />
+    </Form.Field></Grid.Column>
+    <Grid.Column><Form.Field inline>
+      <Form.Label>Secrets Known</Form.Label>
+      <Form.TextArea defaultValue={lore.secretsKnown} onChange={changeSecretsknown} />
+    </Form.Field></Grid.Column>
+  </Grid>
+  </Form>
+);
+
+const CharacterLore = connect(
+  (state, {id}) => ({
+    lore: characterSel.loreInRoot(id, state),
+  }),
+  (dispatch, {id}) => ({
+    changeTragedy: throttle(compose(
+      dispatch,
+      curry(changeCharacter)({id, key: 'tragedy'}),
+      fromEvent
+    ), 1000),
+    changeDestiny: throttle(compose(
+      dispatch,
+      curry(changeCharacter)({id, key: 'destiny'}),
+      fromEvent
+    ), 1000),
+    changeSecretsknown: throttle(compose(
+      dispatch,
+      curry(changeCharacter)({id, key: 'secretsKnown'}),
+      fromEvent
+    ), 1000),
+  })
+)(_CharacterLore);
+
+const _Stunt = ({stunt, changeStunt, removeStunt}) => (
+  <div>
+    <Input defaultValue={stunt} onChange={changeStunt} />
+    <Button icon="delete" onClick={removeStunt} />
+  </div>
+);
+
+const Stunt = connect(
+  (state, {id, powerIndex, stuntIndex}) => ({
+    stunt: characterSel.powersInRoot(id, state)[powerIndex].stunts[stuntIndex],
+  }),
+  (dispatch, {id, powerIndex, stuntIndex}) => ({
+    changeStunt: throttle(compose(
+      dispatch,
+      curry(changeCharacterStunt)({id}, powerIndex, stuntIndex),
+      fromEvent
+    ), 1000),
+    removeStunt: compose(
+      dispatch,
+      () => removeCharacterStunt({id}, powerIndex, stuntIndex)
+    ),
+  })
+)(_Stunt);
+
+const _Power = ({
+  id, powerIndex,
+  name, changeName,
+  type, changeType,
+  rating, changeRating,
+  charges, changeCharges,
+  stunts,
+  newStunt,
+  removePower,
+}) => (
+  <div>
+    <Input label="Name" defaultValue={name} onChange={changeName} />
+    <Input label="Type" defaultValue={type} onChange={changeType} />
+    <Input label="Rating" defaultValue={rating} onChange={changeRating} />
+    <Input label="Charges" defaultValue={charges} onChange={changeCharges} />
+    {
+      Array(stunts)
+      .fill(0)
+      .map((_, i) => <Stunt id={id} powerIndex={powerIndex} stuntIndex={i} />)
+    }
+    <Button icon="add" onClick={newStunt} />
+    <Button icon="delete" onClick={removePower} />
+  </div>
+);
+
+const Power = connect(
+  (state, {id, powerIndex}) => ({
+    name: characterSel.powersInRoot(id, state)[powerIndex].name,
+    type: characterSel.powersInRoot(id, state)[powerIndex].type,
+    rating: characterSel.powersInRoot(id, state)[powerIndex].rating,
+    charges: characterSel.powersInRoot(id, state)[powerIndex].charges,
+    stunts: characterSel.powersInRoot(id, state)[powerIndex].stunts.length,
+  }),
+  (dispatch, {id, powerIndex}) => ({
+    changeName: throttle(compose(
+      dispatch,
+      curry(changeCharacterPower)({id, key: powerIndex, subkey: 'name'}),
+      fromEvent
+    ), 1000),
+    changeType: throttle(compose(
+      dispatch,
+      curry(changeCharacterPower)({id, key: powerIndex, subkey: 'type'}),
+      fromEvent
+    ), 1000),
+    changeRating: throttle(compose(
+      dispatch,
+      curry(changeCharacterPower)({id, key: powerIndex, subkey: 'rating'}),
+      v => Number(v) || 0,
+      fromEvent
+    ), 1000),
+    changeCharges: throttle(compose(
+      dispatch,
+      curry(changeCharacterPower)({id, key: powerIndex, subkey: 'charges'}),
+      v => Number(v) || 0,
+      fromEvent
+    ), 1000),
+    newStunt: compose(
+      dispatch,
+      () => newCharacterStunt({id}, powerIndex)
+    ),
+    removePower: compose(
+      dispatch,
+      () => removeCharacterPower({id}, powerIndex)
+    ),
+  })
+)(_Power);
+
+const _CharacterPowers = ({id, powers, newPower}) => (
+  <div>
+    <Header>Powers</Header>
+    {
+      Array(powers)
+      .fill(0)
+      .map((_, i) => <Power id={id} powerIndex={i} />)
+    }
+    <Button icon="add" onClick={newPower} />
+  </div>
+);
+
+const CharacterPowers = connect(
+  (state, {id}) => ({
+    powers: characterSel.powersInRoot(id, state).length,
+  }),
+  (dispatch, {id}) => ({
+    newPower: compose(
+      dispatch,
+      () => newCharacterPower({id})
+    ),
+  })
+)(_CharacterPowers);
+
+const _Item = ({
+  name, changeName,
+  rules, changeRules,
+  prop, changeProp,
+  removeItem,
+}) => (
+  <div>
+    <Input label="Name" defaultValue={name} onChange={changeName} />
+    <Input label="Rules" defaultValue={rules} onChange={changeRules} />
+    <Checkbox label="Prop" checked={prop} onChange={changeProp} />
+    <Button icon="delete" onClick={removeItem} />
+  </div>
+);
+
+const Item = connect(
+  (state, {id, equipmentIndex}) => ({
+    name: characterSel.equipmentInRoot(id, state)[equipmentIndex].name,
+    rules: characterSel.equipmentInRoot(id, state)[equipmentIndex].rules,
+    prop: characterSel.equipmentInRoot(id, state)[equipmentIndex].prop,
+  }),
+  (dispatch, {id, equipmentIndex}) => ({
+    changeName: throttle(compose(
+      dispatch,
+      curry(changeCharacterEquipment)({id, subkey: 'name'}, equipmentIndex),
+      fromEvent
+    ), 1000),
+    changeRules: throttle(compose(
+      dispatch,
+      curry(changeCharacterEquipment)({id, subkey: 'rules'}, equipmentIndex),
+      fromEvent
+    ), 1000),
+    changeProp: compose(
+      dispatch,
+      curry(changeCharacterEquipment)({id, subkey: 'prop'}, equipmentIndex),
+      Boolean,
+      (ev, data) => data.checked
+    ),
+    removeItem: compose(
+      dispatch,
+      () => removeCharacterEquipment({id}, equipmentIndex)
+    ),
+  })
+)(_Item);
+
+const _CharacterEquipment = ({id, items, newItem}) => (
+  <div>
+    <Header>Equipment</Header>
+    {
+      Array(items)
+      .fill(0)
+      .map((_, i) => <Item id={id} equipmentIndex={i} />)
+    }
+    <Button icon="add" onClick={newItem} />
+  </div>
+);
+
+const CharacterEquipment = connect(
+  (state, {id}) => ({
+    items: characterSel.equipmentInRoot(id, state).length,
+  }),
+  (dispatch, {id}) => ({
+    newItem: compose(
+      dispatch,
+      () => newCharacterEquipment({id})
+    ),
+  })
+)(_CharacterEquipment);
+
 const Character = ({characterName, match}) => (
   <DocumentTitle title={`Mistborn RPG: ${characterName}`}>
     <div>
       <CharacterOverview id={match.params.id} />
       <CharacterScores id={match.params.id} />
       <CharacterTraits id={match.params.id} />
+      <CharacterPowers id={match.params.id} />
+      <CharacterEquipment id={match.params.id} />
+      <CharacterLore id={match.params.id} />
     </div>
   </DocumentTitle>
 );

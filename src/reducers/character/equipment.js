@@ -21,7 +21,7 @@ const equipment = (state = [], action) => {
     case CHANGE_CHARACTER_EQUIPMENT:
       return [].concat(
         state.slice(0, action.key),
-        Object.assign({}, state, {
+        Object.assign({}, state[action.key], {
           [action.subkey]: action.value,
         }),
         state.slice(action.key + 1)

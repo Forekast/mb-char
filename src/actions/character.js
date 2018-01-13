@@ -78,7 +78,7 @@ export const newCharacterPower = ({id, character}) => {
   };
 };
 
-export const changeCharacterPower = ({id, character, subkey}, key, value) => {
+export const changeCharacterPower = ({id, character, key, subkey}, value) => {
   return {
     type: CHANGE_CHARACTER,
     subtype: CHANGE_CHARACTER_POWER,
@@ -133,7 +133,6 @@ export const newCharacterEquipment = ({id, character}) => {
     type: CHANGE_CHARACTER,
     subtype: NEW_CHARACTER_EQUIPMENT,
     id: id || character.id.code,
-    key,
   };
 };
 
