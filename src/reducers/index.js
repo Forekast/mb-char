@@ -30,7 +30,7 @@ const characterSet = (state = [], action) => {
       if (index === -1) {
         return state.concat(action.character);
       }
-      else {
+      else if (!state[index].id.owner) {
         return [].concat(
           state.slice(0, index),
           action.character,

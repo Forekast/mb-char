@@ -33,8 +33,9 @@ import {
 const PERSIST_REHYDRATE = 'persist/REHYDRATE';
 
 const HUB_ADDRESSES = [
-  'http://1.tcp.ngrok.io:23009',
-  // 'http://localhost:8000',
+  // 'signalhub-jccqtwhdwc.now.sh',
+  // 'http://1.tcp.ngrok.io:23009',
+  'http://localhost:8000',
 ];
 
 const swarms = {};
@@ -46,21 +47,47 @@ const take = curry(_take);
 const filter = curry(_filter);
 const tap = curry(_tap);
 
+const characters = [];
+const locals = [];
+const remotes = [];
+
 const hub = signalhub(`mistborn`, HUB_ADDRESSES);
 
-const sw = swarm(hub, {});
+let sw;
 
 const _shareCharacter = (characterId, action$) => {
-  if (swarms[characterId.code]) {return;}
+  if (characterId.owner && characterId.code && locals.indexOf(characterId.code) === -1) {
+    locals.push(characterId.code);
+  }
+  if (!characterId.owner && characterId.code && remotes.indexOf(characterId.code) === -1) {
+    remotes.push(characterId.code);
+  }
+
+  if (swarms['all']) {return;}
 
   let character = null;
-  const characters = [];
   let queue = [];
   let resolve = () => null;
 
   // const hub = signalhub(`mistborn-${characterId.code}`, HUB_ADDRESSES);
-  //
-  // const sw = swarm(hub, {});
+
+  if (!sw) {
+    sw = swarm(hub, {
+      wrap(data, uid) {
+        data.characters = locals;
+        return data;
+      },
+      unwrap(data, uid) {
+        console.log(sw.me, data.from, uid, data.characters, locals, remotes);
+        if (uid === sw.me) {
+          return data;
+        }
+        if (data.characters.find(cid => remotes.indexOf(cid) !== -1)) {
+          return data;
+        }
+      },
+    });
+  }
 
   console.log('share', characterId.code);
 
@@ -68,15 +95,16 @@ const _shareCharacter = (characterId, action$) => {
     console.log('connected to a new peer:', id);
     console.log('total peers:', sw.peers.length);
     console.dir(peer);
+    console.log(characterId, character);
     console.log(characters);
     for (const character of characters) {
       console.log(character);
       console.log('send', character.type);
       peer.send(JSON.stringify(character));
     }
-    if (characterId.owner && character) {
-      peer.send(JSON.stringify(character));
-    }
+    // if (characterId.owner && character) {
+    //   peer.send(JSON.stringify(character));
+    // }
 
     peer.on('data', function(data) {
       const action = JSON.parse(data.toString());
@@ -118,14 +146,14 @@ const _shareCharacter = (characterId, action$) => {
     resolve();
   });
 
-  swarms[characterId.code] = sw;
+  swarms['all'] = sw;
 
   console.log('1');
 
   compose(
     observe(action => {
-      if (action.remote) {return;}
       console.log(FULL_CHARACTER, action);
+      if (action.remote) {return;}
       if (characterId.code === action.id) {
         character = action;
       }
@@ -146,7 +174,7 @@ const _shareCharacter = (characterId, action$) => {
   compose(
     observe(action => {
       console.log(CHANGE_CHARACTER, action);
-      if (!action.remote) {
+      if (!action.remote || locals.indexOf(action.id) !== -1) {
         for (const peer of sw.peers) {
           peer.send(JSON.stringify(action));
         }
@@ -182,7 +210,7 @@ const _shareCharacter = (characterId, action$) => {
 
 const _stopShare = id => {
   if (!swarms[id.code]) {return;}
-  swarms[id.code].close();
+  // swarms[id.code].close();
   swarms[id.code] = null;
 };
 
@@ -200,7 +228,8 @@ const shareCharacter = (action$, state$) => {
     compose(
       filter(Boolean),
       map(([state, {id}]) => (
-        characterSel.inRoot(id, state).id.owner && fullCharacter(characterSel.inRoot(id, state))
+        characterSel.inRoot(id, state).id.owner &&
+          fullCharacter(characterSel.inRoot(id, state))
       )),
       // chain(action => compose(
       //   map(state => ([state, action])),
@@ -231,7 +260,11 @@ const shareCharacter = (action$, state$) => {
             action.payload.characterSet
             .map(c => _shareCharacter(c.id, action$))
             .filter(s => (console.log(s), Boolean(s)))
-            .concat(mostFrom(action.payload.characterSet.filter(c => c.id.owner).map(fullCharacter))) :
+            .concat(mostFrom(
+              action.payload.characterSet
+              .filter(c => c.id.owner)
+              .map(fullCharacter)
+            )) :
             []
         ))
       )),
