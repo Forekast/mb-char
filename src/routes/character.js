@@ -8,6 +8,7 @@ import {Form, Input, Header, Button, Label, TextArea, Grid, Checkbox} from 'sema
 import 'semantic-ui-css/semantic.css';
 
 import {
+  newCharacter,
   changeCharacter,
   newCharacterBurden,
   changeCharacterBurden,
@@ -25,6 +26,10 @@ import {
 import {character as characterSel} from '../selectors';
 
 const fromEvent = ev => ev.target.value;
+
+const INPUT_TIMEOUT = 1000;
+const SCORE_TIMEOUT = 200;
+const AREA_TIMEOUT = 1000;
 
 const _CharacterOverview = ({
   overview,
@@ -134,7 +139,7 @@ const CharacterBurden = connect(
       dispatch,
       curry(changeCharacterBurden)({id}, burdenIndex),
       fromEvent
-    ), 1000),
+    ), INPUT_TIMEOUT),
     removeBurden: compose(
       dispatch,
       () => removeCharacterBurden({id}, burdenIndex)
@@ -193,35 +198,35 @@ const CharacterTraits = connect(
         dispatch,
         curry(changeCharacter)({id, key: 'drive'}),
         fromEvent
-      ), 1000)
+      ), INPUT_TIMEOUT)
     ),
     changeProfession: (
       throttle(compose(
         dispatch,
         curry(changeCharacter)({id, key: 'profession'}),
         fromEvent
-      ), 1000)
+      ), INPUT_TIMEOUT)
     ),
     changeSpecialty: (
       throttle(compose(
         dispatch,
         curry(changeCharacter)({id, key: 'specialty'}),
         fromEvent
-      ), 1000)
+      ), INPUT_TIMEOUT)
     ),
     changeFeature: (
       throttle(compose(
         dispatch,
         curry(changeCharacter)({id, key: 'feature'}),
         fromEvent
-      ), 1000)
+      ), INPUT_TIMEOUT)
     ),
     changePersonality: (
       throttle(compose(
         dispatch,
         curry(changeCharacter)({id, key: 'personality'}),
         fromEvent
-      ), 1000)
+      ), INPUT_TIMEOUT)
     ),
     newBurden: compose(dispatch, () => newCharacterBurden({id})),
   })
@@ -241,7 +246,7 @@ const AttributeScore = connect(
       curry(changeCharacter)({id, key: score}),
       v => Number(v) || 0,
       fromEvent
-    ), 1000),
+    ), SCORE_TIMEOUT),
   })
 )(_AttributeScore);
 
@@ -263,13 +268,13 @@ const StandingScore = connect(
       curry(changeCharacter)({id, key: score}),
       v => Number(v) || 0,
       fromEvent
-    ), 1000),
+    ), SCORE_TIMEOUT),
     changeSpent: throttle(compose(
       dispatch,
       curry(changeCharacter)({id, key: `${score}Less`}),
       v => Number(v) || 0,
       fromEvent
-    ), 1000),
+    ), SCORE_TIMEOUT),
   })
 )(_StandingScore);
 
@@ -304,13 +309,13 @@ const ResilienceScore = connect(
       curry(changeCharacter)({id, key: `${score}Less`}),
       v => Number(v) || 0,
       fromEvent
-    ), 1000),
+    ), SCORE_TIMEOUT),
     changeBonus: throttle(compose(
       dispatch,
       curry(changeCharacter)({id, key: `${score}Bonus`}),
       v => Number(v) || 0,
       fromEvent
-    ), 1000),
+    ), SCORE_TIMEOUT),
   })
 )(_ResilienceScore);
 
@@ -375,17 +380,17 @@ const CharacterLore = connect(
       dispatch,
       curry(changeCharacter)({id, key: 'tragedy'}),
       fromEvent
-    ), 1000),
+    ), AREA_TIMEOUT),
     changeDestiny: throttle(compose(
       dispatch,
       curry(changeCharacter)({id, key: 'destiny'}),
       fromEvent
-    ), 1000),
+    ), AREA_TIMEOUT),
     changeSecretsknown: throttle(compose(
       dispatch,
       curry(changeCharacter)({id, key: 'secretsKnown'}),
       fromEvent
-    ), 1000),
+    ), AREA_TIMEOUT),
   })
 )(_CharacterLore);
 
@@ -405,7 +410,7 @@ const Stunt = connect(
       dispatch,
       curry(changeCharacterStunt)({id}, powerIndex, stuntIndex),
       fromEvent
-    ), 1000),
+    ), INPUT_TIMEOUT),
     removeStunt: compose(
       dispatch,
       () => removeCharacterStunt({id}, powerIndex, stuntIndex)
@@ -451,24 +456,24 @@ const Power = connect(
       dispatch,
       curry(changeCharacterPower)({id, key: powerIndex, subkey: 'name'}),
       fromEvent
-    ), 1000),
+    ), INPUT_TIMEOUT),
     changeType: throttle(compose(
       dispatch,
       curry(changeCharacterPower)({id, key: powerIndex, subkey: 'type'}),
       fromEvent
-    ), 1000),
+    ), INPUT_TIMEOUT),
     changeRating: throttle(compose(
       dispatch,
       curry(changeCharacterPower)({id, key: powerIndex, subkey: 'rating'}),
       v => Number(v) || 0,
       fromEvent
-    ), 1000),
+    ), SCORE_TIMEOUT),
     changeCharges: throttle(compose(
       dispatch,
       curry(changeCharacterPower)({id, key: powerIndex, subkey: 'charges'}),
       v => Number(v) || 0,
       fromEvent
-    ), 1000),
+    ), SCORE_TIMEOUT),
     newStunt: compose(
       dispatch,
       () => newCharacterStunt({id}, powerIndex)
@@ -529,12 +534,12 @@ const Item = connect(
       dispatch,
       curry(changeCharacterEquipment)({id, subkey: 'name'}, equipmentIndex),
       fromEvent
-    ), 1000),
+    ), INPUT_TIMEOUT),
     changeRules: throttle(compose(
       dispatch,
       curry(changeCharacterEquipment)({id, subkey: 'rules'}, equipmentIndex),
       fromEvent
-    ), 1000),
+    ), INPUT_TIMEOUT),
     changeProp: compose(
       dispatch,
       curry(changeCharacterEquipment)({id, subkey: 'prop'}, equipmentIndex),
@@ -572,21 +577,29 @@ const CharacterEquipment = connect(
   })
 )(_CharacterEquipment);
 
-const Character = ({characterName, match}) => (
+const Character = ({isCharacter, characterName, match, newCharacter}) => (
   <DocumentTitle title={`Mistborn RPG: ${characterName}`}>
-    <div>
-      <CharacterOverview id={match.params.id} />
-      <CharacterScores id={match.params.id} />
-      <CharacterTraits id={match.params.id} />
-      <CharacterPowers id={match.params.id} />
-      <CharacterEquipment id={match.params.id} />
-      <CharacterLore id={match.params.id} />
-    </div>
+    {
+      isCharacter ?
+      <div key="character">
+        <CharacterOverview id={match.params.id} />
+        <CharacterScores id={match.params.id} />
+        <CharacterTraits id={match.params.id} />
+        <CharacterPowers id={match.params.id} />
+        <CharacterEquipment id={match.params.id} />
+        <CharacterLore id={match.params.id} />
+      </div> :
+      newCharacter()
+    }
   </DocumentTitle>
 );
 
 export default connect(
   (state, {match}) => ({
-    characterName: characterSel.overviewInRoot(match.params.id, state).name,
+    isCharacter: Boolean(characterSel.inRoot(match.params.id, state)),
+    characterName: characterSel.nameInRoot(match.params.id, state),
+  }),
+  (dispatch, {match}) => ({
+    newCharacter: compose(dispatch, () => newCharacter({id: match.params.id}))
   })
 )(Character);

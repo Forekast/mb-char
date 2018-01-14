@@ -28,7 +28,7 @@ const traits = (state = {}, action) => {
       burdens: [],
     };
   case CHANGE_CHARACTER:
-    if (TRAIT_KEYS.indexOf(action.key) !== -1) {
+    if (!action.subtype && TRAIT_KEYS.indexOf(action.key) !== -1) {
       return {
         traits: Object.assign({}, state.traits, {
           [action.key]: action.value,

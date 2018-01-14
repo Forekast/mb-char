@@ -31,9 +31,9 @@ const overview = (state = {}, action) => {
       weight: '',
     };
   case CHANGE_CHARACTER:
-    if (OVERVIEW_KEYS.indexOf(action.key) !== -1) {
+    if (!action.subtype && OVERVIEW_KEYS.indexOf(action.key) !== -1) {
       return Object.assign({}, state, {
-        [action.key]: Number(action.value),
+        [action.key]: action.value,
       });
     }
   default:

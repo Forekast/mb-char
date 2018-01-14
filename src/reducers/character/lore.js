@@ -15,7 +15,7 @@ const lore = (state = {}, action) => {
       secretsKnown: '',
     };
   case CHANGE_CHARACTER:
-    if (LORE_KEYS.indexOf(action.key) !== -1) {
+    if (!action.subtype && LORE_KEYS.indexOf(action.key) !== -1) {
       return Object.assign({}, state, {
         [action.key]: action.value,
       });

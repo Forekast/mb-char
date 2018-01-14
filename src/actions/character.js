@@ -2,6 +2,7 @@ import {
   NEW_CHARACTER,
   CHANGE_CHARACTER,
   REMOVE_CHARACTER,
+  FULL_CHARACTER,
 
   NEW_CHARACTER_BURDEN,
   CHANGE_CHARACTER_BURDEN,
@@ -20,9 +21,10 @@ import {
   REMOVE_CHARACTER_EQUIPMENT,
 } from '../constants/action-types';
 
-export const newCharacter = ({name}) => {
+export const newCharacter = ({id, name}) => {
   return {
     type: NEW_CHARACTER,
+    id,
     name,
   };
 };
@@ -40,6 +42,25 @@ export const removeCharacter = ({id, character}) => {
   return {
     type: REMOVE_CHARACTER,
     id: id || character.id.code,
+  };
+};
+
+export const fullCharacter = character => {
+  return {
+    type: FULL_CHARACTER,
+    id: character.id.code,
+    character: {
+      id: {
+        code: character.id.code,
+        owner: false,
+      },
+      overview: character.overview,
+      scores: character.scores,
+      traits: character.traits,
+      powers: character.powers,
+      equipment: character.equipment,
+      lore: character.lore,
+    },
   };
 };
 

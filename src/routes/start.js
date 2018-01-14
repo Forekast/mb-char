@@ -12,8 +12,8 @@ import {newCharacter} from '../actions';
 import Field from '../components/field';
 
 const Start = ({location, characterIds, newCharacter}) => {
-  if (characterIds.length > 0) {
-    return <Redirect from={location} to={`/character/${characterIds[0]}`} />;
+  if (characterIds.filter(id => id.owner).length > 0) {
+    return <Redirect from={location} to={`/character/${characterIds.filter(id => id.owner)[0].code}`} />;
   }
 
   return (<DocumentTitle title="Mistborn RPG"><div>
@@ -34,7 +34,7 @@ const Start = ({location, characterIds, newCharacter}) => {
 export default connect(
   (state, {location}) => ({
     location: location.pathname,
-    characterIds: state.characterSet.map(c => c.id.code),
+    characterIds: state.characterSet.map(c => c.id),
   }),
   dispatch => ({
     newCharacter: compose(dispatch, newCharacter),

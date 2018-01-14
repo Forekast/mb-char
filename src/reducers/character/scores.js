@@ -47,7 +47,7 @@ const scores = (state = {}, action) => {
       willpowerLess: 0,
     };
   case CHANGE_CHARACTER:
-    if (SCORE_KEYS.indexOf(action.key) !== -1) {
+    if (!action.subtype && SCORE_KEYS.indexOf(action.key) !== -1) {
       return Object.assign({}, state, {
         [action.key]: action.value,
       });

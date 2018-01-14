@@ -1,3 +1,5 @@
+import 'babel-polyfill';
+
 import {h, render} from 'preact';
 
 import 'preact/devtools';

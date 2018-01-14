@@ -1,7 +1,7 @@
 import {combineReducers} from 'redux';
 
 import {
-  NEW_CHARACTER, CHANGE_CHARACTER, REMOVE_CHARACTER
+  NEW_CHARACTER, CHANGE_CHARACTER, REMOVE_CHARACTER, FULL_CHARACTER
 } from '../constants/action-types';
 
 import character from './character';
@@ -24,6 +24,20 @@ const characterSet = (state = [], action) => {
       state.slice(0, index),
       state.slice(index + 1)
     );
+  case FULL_CHARACTER:
+    if (action.remote) {
+      index = state.findIndex(c => c.id.code === action.id);
+      if (index === -1) {
+        return state.concat(action.character);
+      }
+      else {
+        return [].concat(
+          state.slice(0, index),
+          action.character,
+          state.slice(index + 1)
+        );
+      }
+    }
   default:
     return state;
   }

@@ -4,6 +4,17 @@ const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
+  devServer: {
+    // host: 'mb-char.zerachu.com',
+    port: 8081,
+    allowedHosts: [
+      'localhost',
+      '0.0.0.0',
+      '127.0.0.1',
+      'mb-char.zerachu.com',
+      '6bc6cb20.ngrok.io',
+    ],
+  },
   context: __dirname,
   entry: './src',
   output: {
