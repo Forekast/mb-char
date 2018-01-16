@@ -5,6 +5,10 @@ import {
   FULL_CHARACTER,
   IMPORT_CHARACTER,
 
+  NEW_CHARACTER_SCORE_MOD,
+  CHANGE_CHARACTER_SCORE_MOD,
+  REMOVE_CHARACTER_SCORE_MOD,
+
   NEW_CHARACTER_BURDEN,
   CHANGE_CHARACTER_BURDEN,
   REMOVE_CHARACTER_BURDEN,
@@ -76,6 +80,36 @@ export const importCharacter = character => {
       equipment: character.equipment,
       lore: character.lore,
     },
+  };
+};
+
+export const newCharacterScoreMod = ({id, character}, key) => {
+  return {
+    type: CHANGE_CHARACTER,
+    subtype: NEW_CHARACTER_SCORE_MOD,
+    id: id || character.id.code,
+    key,
+  };
+};
+
+export const changeCharacterScoreMod = ({id, character}, key, subkey, payload) => {
+  return {
+    type: CHANGE_CHARACTER,
+    subtype: CHANGE_CHARACTER_SCORE_MOD,
+    id: id || character.id.code,
+    key,
+    subkey,
+    payload,
+  };
+};
+
+export const removeCharacterScoreMod = ({id, character}, key, subkey) => {
+  return {
+    type: CHANGE_CHARACTER,
+    subtype: REMOVE_CHARACTER_SCORE_MOD,
+    id: id || character.id.code,
+    key,
+    subkey,
   };
 };
 

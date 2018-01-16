@@ -11,6 +11,9 @@ import 'semantic-ui-css/semantic.css';
 import {
   newCharacter,
   changeCharacter,
+  newCharacterScoreMod,
+  changeCharacterScoreMod,
+  removeCharacterScoreMod,
   newCharacterBurden,
   changeCharacterBurden,
   removeCharacterBurden,
@@ -282,13 +285,44 @@ const CharacterTraits = connect(
   })
 )(_CharacterTraits);
 
-const _AttributeScore = ({label, value, change}) => (
-  <Input label={label} defaultValue={value} readOnly={!change} onChange={change} type="number" min="1" max="7" step="1" />
+const _ScoreMods = ({mods, changeModValue, changeModName, removeMod}) => (
+  <div>
+  {
+    typeof mods === 'number' ?
+      Array(mods)
+      .fill(0)
+      .map((_, i) => (
+        <Input />
+      )) :
+      mods
+      .map((mod, i) => (
+        <Input size="mini" defaultValue={mod.name} readOnly={!changeModName}
+          onChange={changeModName ? changeModName(i) : null} action>
+          <Input defaultValue={mod.value} readOnly={!changeModValue}
+            onChange={changeModValue ? changeModValue(i) : null}
+            style={{width: '5em', textAlign: 'right'}} min={-10} max={10}
+            step={1} type="number">
+            <input style={{textAlign: 'right'}} />
+          </Input>
+          <input />
+          {removeMod ? <Button icon="delete" onClick={removeMod(i)} /> : <span />}
+        </Input>
+      ))
+  }
+  </div>
+);
+
+const _AttributeScore = ({label, value, change, mods, newMod, changeModValue, changeModName, removeMod}) => (
+  <div>
+    <Input label={label} action={newMod ? {icon: 'adjust', onClick: newMod} : null} defaultValue={value} readOnly={!change} onChange={change} type="number" min="1" max="10" step="1" />
+    <_ScoreMods mods={mods} changeModValue={changeModValue} changeModName={changeModName} removeMod={removeMod} />
+  </div>
 );
 
 const AttributeScore = connect(
   (state, {id, score}) => ({
     value: characterSel.scoresInRoot(id, state)[score],
+    mods: characterSel.scoresInRoot(id, state)[`${score}Mods`] || [],
   }),
   (dispatch, {id, score}) => ({
     change: throttle(compose(
@@ -297,6 +331,26 @@ const AttributeScore = connect(
       v => Number(v) || 0,
       fromEvent
     ), SCORE_TIMEOUT),
+    newMod: compose(
+      dispatch,
+      () => newCharacterScoreMod({id}, score)
+    ),
+    changeModValue: index => throttle(compose(
+      dispatch,
+      curry(changeCharacterScoreMod)({id}, score, index),
+      v => ({value: Number(v) || 0}),
+      fromEvent
+    ), SCORE_TIMEOUT),
+    changeModName: index => throttle(compose(
+      dispatch,
+      curry(changeCharacterScoreMod)({id}, score, index),
+      name => ({name}),
+      fromEvent
+    ), INPUT_TIMEOUT),
+    removeMod: index => compose(
+      dispatch,
+      () => removeCharacterScoreMod({id}, score, index),
+    ),
   })
 )(_AttributeScore);
 
@@ -345,74 +399,96 @@ const ResilienceScore = connect(
   (state, {id, score, attribute, standing}) => ({
     value: (
       characterSel.scoresInRoot(id, state)[attribute] +
+      (characterSel.scoresInRoot(id, state)[`${attribute}Mods`] || [])
+      .reduce((carry, {value}) => carry + value, 0) +
       characterSel.scoresInRoot(id, state)[standing] +
-      characterSel.scoresInRoot(id, state)[`${standing}Less`] +
-      characterSel.scoresInRoot(id, state)[`${score}Less`] +
-      characterSel.scoresInRoot(id, state)[`${score}Bonus`]
+      (characterSel.scoresInRoot(id, state)[`${standing}Mods`] || [])
+      .reduce((carry, {value}) => carry + value, 0) +
+      (characterSel.scoresInRoot(id, state)[`${score}Mods`] || [])
+      .reduce((carry, {value}) => carry + value, 0)
     ),
-    damageValue: characterSel.scoresInRoot(id, state)[`${score}Less`],
-    bonusValue: characterSel.scoresInRoot(id, state)[`${score}Bonus`],
+    mods: characterSel.scoresInRoot(id, state)[`${score}Mods`] || []
   }),
   (dispatch, {id, score}) => ({
-    changeDamage: throttle(compose(
+    newMod: compose(
       dispatch,
-      curry(changeCharacter)({id, key: `${score}Less`}),
-      v => Number(v) || 0,
+      () => newCharacterScoreMod({id}, score)
+    ),
+    changeModValue: index => throttle(compose(
+      dispatch,
+      curry(changeCharacterScoreMod)({id}, score, index),
+      v => ({value: Number(v) || 0}),
       fromEvent
     ), SCORE_TIMEOUT),
-    changeBonus: throttle(compose(
+    changeModName: index => throttle(compose(
       dispatch,
-      curry(changeCharacter)({id, key: `${score}Bonus`}),
-      v => Number(v) || 0,
+      curry(changeCharacterScoreMod)({id}, score, index),
+      name => ({name}),
       fromEvent
-    ), SCORE_TIMEOUT),
+    ), INPUT_TIMEOUT),
+    removeMod: index => compose(
+      dispatch,
+      () => removeCharacterScoreMod({id}, score, index),
+    ),
   })
-)(_ResilienceScore);
+)(_AttributeScore);
 
 const _CharacterScores = ({scores}) => (
-  <div>
+  <div className={styles.scores}>
     <Header>Scores</Header>
     <Grid>
-    <Grid.Column>
+    <Grid.Column width={5}>
       <Grid.Row><Header>Attributes</Header></Grid.Row>
-      <Grid.Row><_AttributeScore label="Physique" score="physique" value={scores.physique} /></Grid.Row>
-      <Grid.Row><_AttributeScore label="Charm" score="charm" value={scores.charm} /></Grid.Row>
-      <Grid.Row><_AttributeScore label="Wits" score="wits" value={scores.wits} /></Grid.Row>
+      <Grid.Row><_AttributeScore label="Physique" score="physique" value={scores.physique} mods={(scores.physiqueMods || [])} /></Grid.Row>
+      <Grid.Row><_AttributeScore label="Charm" score="charm" value={scores.charm} mods={(scores.charmMods || [])} /></Grid.Row>
+      <Grid.Row><_AttributeScore label="Wits" score="wits" value={scores.wits} mods={(scores.witsMods || [])} /></Grid.Row>
     </Grid.Column>
-    <Grid.Column>
+    <Grid.Column width={5}>
       <Grid.Row><Header>Standing</Header></Grid.Row>
-      <Grid.Row><_StandingScore label="Resources" score="resources" 
-        value={scores.resources} spentValue={scores.resourcesLess} /></Grid.Row>
-      <Grid.Row><_StandingScore label="Influence" score="influence" 
-        value={scores.influence} spentValue={scores.influenceLess} /></Grid.Row>
-      <Grid.Row><_StandingScore label="Spirit" score="spirit" 
-        value={scores.spirit} spentValue={scores.spiritLess} /></Grid.Row>
+      <Grid.Row><_AttributeScore label="Resources" score="resources"  
+        mods={(scores.resourcesMods || [])} value={scores.resources}
+        spentValue={scores.resourcesLess} /></Grid.Row>
+      <Grid.Row><_AttributeScore label="Influence" score="influence"  
+        mods={(scores.influenceMods || [])} value={scores.influence}
+        spentValue={scores.influenceLess} /></Grid.Row>
+      <Grid.Row><_AttributeScore label="Spirit" score="spirit"  
+        mods={(scores.spiritMods || [])} value={scores.spirit}
+        spentValue={scores.spiritLess} /></Grid.Row>
     </Grid.Column>
-    <Grid.Column>
+    <Grid.Column width={5}>
       <Grid.Row><Header>Resilience</Header></Grid.Row>
-      <Grid.Row><_ResilienceScore label="Health" score="health"
+      <Grid.Row><_AttributeScore label="Health" score="health"
         value={
-          scores.physique + scores.resources + scores.resourcesLess +
-          scores.healthBonus + scores.healthLess
+          scores.physique + (scores.physiqueMods || [])
+          .reduce((carry, {value}) => carry + value, 0) +
+          scores.resources + (scores.resourcesMods || [])
+          .reduce((carry, {value}) => carry + value, 0) +
+          (scores.healthMods || [])
+          .reduce((carry, {value}) => carry + value, 0)
         }
-        damageValue={scores.healthLess}
-        bonusValue={scores.healthBonus}
+        mods={(scores.healthMods || [])}
         attribute="physique" standing="resources" /></Grid.Row>
-      <Grid.Row><_ResilienceScore label="Reputation" score="reputation"
+      <Grid.Row><_AttributeScore label="Reputation" score="reputation"
         value={
-          scores.charm + scores.influence + scores.influenceLess +
-          scores.reputationBonus + scores.reputationLess
+          scores.charm + (scores.charmMods || [])
+          .reduce((carry, {value}) => carry + value, 0) +
+          scores.influence + (scores.influenceMods || [])
+          .reduce((carry, {value}) => carry + value, 0) +
+          (scores.reputationMods || [])
+          .reduce((carry, {value}) => carry + value, 0)
         }
-        damageValue={scores.reputationLess}
-        bonusValue={scores.reputationBonus}
+        mods={(scores.reputationMods || [])}
         attribute="charm" standing="influence" /></Grid.Row>
-      <Grid.Row><_ResilienceScore label="Willpower" score="willpower"
+      <Grid.Row><_AttributeScore label="Willpower" score="willpower"
         value={
-          scores.wits + scores.spirit + scores.spiritLess +
-          scores.willpowerBonus + scores.willpowerLess
+          scores.wits + (scores.witsMods || [])
+          .reduce((carry, {value}) => carry + value, 0) +
+          scores.spirit + (scores.spiritMods || [])
+          .reduce((carry, {value}) => carry + value, 0) +
+          (scores.willpowerMods || [])
+          .reduce((carry, {value}) => carry + value, 0)
         }
-        damageValue={scores.willpowerLess}
-        bonusValue={scores.willpowerBonus}
+        mods={(scores.willpowerMods || [])}
         attribute="wits" standing="spirit" /></Grid.Row>
     </Grid.Column>
     </Grid>
@@ -431,9 +507,9 @@ const CharacterScores = ({id}) => (
     </Grid.Column>
     <Grid.Column width={5}>
       <Grid.Row><Header>Standing</Header></Grid.Row>
-      <Grid.Row><Grid.Column width={2}><StandingScore id={id} label="Resources" score="resources" /></Grid.Column></Grid.Row>
-      <Grid.Row><StandingScore id={id} label="Influence" score="influence" /></Grid.Row>
-      <Grid.Row><StandingScore id={id} label="Spirit" score="spirit" /></Grid.Row>
+      <Grid.Row><AttributeScore id={id} label="Resources" score="resources" /></Grid.Row>
+      <Grid.Row><AttributeScore id={id} label="Influence" score="influence" /></Grid.Row>
+      <Grid.Row><AttributeScore id={id} label="Spirit" score="spirit" /></Grid.Row>
     </Grid.Column>
     <Grid.Column width={5}>
       <Grid.Row><Header>Resilience</Header></Grid.Row>
