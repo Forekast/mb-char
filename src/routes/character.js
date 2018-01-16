@@ -825,7 +825,7 @@ const CharacterMenu = ({id, characterStr}) => (
 
 const _Character = ({character}) => (
   <Container as="div">
-    <CharacterMenu characterStr={btoa(JSON.stringify(character))} />
+    <CharacterMenu characterStr={encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(character)))))} />
     <Divider />
     <_CharacterOverview overview={character.overview} />
     <Divider />

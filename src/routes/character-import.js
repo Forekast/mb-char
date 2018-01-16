@@ -4,8 +4,8 @@ import {Redirect} from 'react-router-dom';
 import {character as characterSel} from '../selectors';
 import {importCharacter} from '../actions';
 
-const _CharacterExport = ({match, importCharacter}) => (
-  importCharacter(JSON.parse(atob(match.params.characterStr))),
+const _CharacterImport = ({match, importCharacter}) => (
+  importCharacter(JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(match.params.characterStr)))))),
   <Redirect to={`/character`} />
 );
 
@@ -16,4 +16,4 @@ export default connect(
   (dispatch, {match}) => ({
     importCharacter: char => dispatch(importCharacter(char)),
   })
-)(_CharacterExport);
+)(_CharacterImport);

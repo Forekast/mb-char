@@ -4,9 +4,9 @@ import {Redirect} from 'react-router-dom';
 import {character as characterSel} from '../selectors';
 
 const _CharacterExport = ({character}) => (
-  <Redirect to={`/character/static/${btoa(JSON.stringify(
+  <Redirect to={`/character/static/${encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(
     Object.assign({}, character, {id: undefined})
-  ))}`} />
+  )))))}`} />
 );
 
 export default connect(
