@@ -2,9 +2,10 @@ import {h} from 'preact';
 import {connect} from 'react-redux';
 import {compose, curry} from 'ramda';
 import {debounce as throttle} from 'lodash';
+import {Link} from 'react-router-dom';
 import DocumentTitle from 'react-document-title';
 
-import {Form, Input, Header, Button, Label, TextArea, Grid, Checkbox} from 'semantic-ui-react';
+import {Form, Input, Header, Button, Label, TextArea, Grid, Checkbox, Popup, Container} from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.css';
 
 import {
@@ -25,11 +26,18 @@ import {
 } from '../actions';
 import {character as characterSel} from '../selectors';
 
+import styles from './character.css';
+
 const fromEvent = ev => ev.target.value;
 
 const INPUT_TIMEOUT = 1000;
 const SCORE_TIMEOUT = 200;
 const AREA_TIMEOUT = 1000;
+
+const OverviewInput = (props) => (
+  <Input label="Character Name" defaultValue={overview.name}
+    disabled={!(props.onChange || props.onBlur)} {...props} />
+)
 
 const _CharacterOverview = ({
   overview,
@@ -45,30 +53,71 @@ const _CharacterOverview = ({
   changeHeight,
   changeWeight,
 }) => (
-  <div>
+  <div className={styles.overview}>
     <Header>Overview</Header>
-    <Input label="Character Name"
-      defaultValue={overview.name} onBlur={changeName} />
-    <Input label="Concept"
-      defaultValue={overview.concept} onChange={changeConcept} />
-    <Input label="Crew Name"
-      defaultValue={overview.crewName} onChange={changeCrewName} />
-    <Input label="Cause" defaultValue={overview.cause}
-      onChange={changeCause} />
-    <Input label="Target" defaultValue={overview.target}
-      onChange={changeTarget} />
-    <Input label="Method" defaultValue={overview.method}
-      onChange={changeMethod} />
-    <Input label="Race" defaultValue={overview.race}
-      onChange={changeRace} />
-    <Input label="Sex" defaultValue={overview.sex}
-      onChange={changeSex} />
-    <Input label="Age" defaultValue={overview.age}
-      onChange={changeAge} />
-    <Input label="Height" defaultValue={overview.height}
-      onChange={changeHeight} />
-    <Input label="Weight" defaultValue={overview.weight}
-      onChange={changeWeight} />
+    <Grid>
+    <Grid.Row>
+      <Grid.Column width={12}>
+        <Input label="Character Name" defaultValue={overview.name}
+          disabled={!changeName} onBlur={changeName} />
+      </Grid.Column>
+      <Grid.Column width={4}>
+        <Input placeholder="Concept" defaultValue={overview.concept}
+          disabled={!changeConcept} onChange={changeConcept} />
+      </Grid.Column>
+    </Grid.Row>
+    <Grid.Row>
+      <Grid.Column width={4}>
+        <Label content="Crew Name" pointing="below" />
+        <Input defaultValue={overview.crewName}
+          disabled={!changeCrewName} onChange={changeCrewName} />
+      </Grid.Column>
+      <Grid.Column width={4}>
+        <Label content="Cause" pointing="below" />
+        <Input defaultValue={overview.cause}
+          disabled={!changeCause} onChange={changeCause} />
+      </Grid.Column>
+      <Grid.Column width={4}>
+        <Label content="Target" pointing="below" />
+        <Input defaultValue={overview.target}
+          disabled={!changeTarget} onChange={changeTarget} />
+      </Grid.Column>
+      <Grid.Column width={4}>
+        <Label content="Method" pointing="below" />
+        <Input defaultValue={overview.method}
+          disabled={!changeMethod} onChange={changeMethod} />
+      </Grid.Column>
+    </Grid.Row>
+    <Grid.Row>
+      <Grid.Column width={4}>
+        <Input placeholder="Race" defaultValue={overview.race}
+          disabled={!changeRace} onChange={changeRace} list="races" />
+        <datalist id='races'>
+          <option value='Human' />
+          <option value='Terris' />
+          <option value='Koloss' />
+          <option value='Kandra' />
+          <option value='Malwish' />
+        </datalist>
+      </Grid.Column>
+      <Grid.Column width={3}>
+        <Input placeholder="Sex" defaultValue={overview.sex}
+          disabled={!changeSex} onChange={changeSex} />
+      </Grid.Column>
+      <Grid.Column width={3}>
+        <Input placeholder="Age" defaultValue={overview.age}
+          disabled={!changeAge} onChange={changeAge} />
+      </Grid.Column>
+      <Grid.Column width={3}>
+        <Input placeholder="Height" defaultValue={overview.height}
+          disabled={!changeHeight} onChange={changeHeight} />
+      </Grid.Column>
+      <Grid.Column width={3}>
+        <Input placeholder="Weight" defaultValue={overview.weight}
+          disabled={!changeWeight} onChange={changeWeight} />
+      </Grid.Column>
+    </Grid.Row>
+    </Grid>
   </div>
 );
 
@@ -125,8 +174,9 @@ const CharacterOverview = connect(
 
 const _CharacterBurden = ({burden, changeBurden, removeBurden}) => (
   <div>
-    <Input defaultValue={burden} onChange={changeBurden} />
-    <Button icon="delete" onClick={removeBurden} />
+    <Input defaultValue={burden} disabled={!changeBurden}
+      onChange={changeBurden} />
+    {removeBurden ? <Button icon="delete" onClick={removeBurden} /> : null}
   </div>
 );
 
@@ -165,20 +215,23 @@ const _CharacterTraits = ({
   <div>
     <div>
       <Header>Traits</Header>
-      <Input label="Drive" defaultValue={drive} onChange={changeDrive} />
-      <Input label="Profession" defaultValue={profession} onChange={changeProfession} />
-      <Input label="Specialty" defaultValue={specialty} onChange={changeSpecialty} />
-      <Input label="Feature" defaultValue={feature} onChange={changeFeature} />
-      <Input label="Personality" defaultValue={personality} onChange={changePersonality} />
+      <Input label="Drive" defaultValue={drive} disabled={!changeDrive} onChange={changeDrive} />
+      <Input label="Profession" defaultValue={profession} disabled={!changeProfession} onChange={changeProfession} />
+      <Input label="Specialty" defaultValue={specialty} disabled={!changeSpecialty} onChange={changeSpecialty} />
+      <Input label="Feature" defaultValue={feature} disabled={!changeFeature} onChange={changeFeature} />
+      <Input label="Personality" defaultValue={personality} disabled={!changePersonality} onChange={changePersonality} />
     </div>
     <div>
       <Header>Burdens</Header>
       {
-        Array(burdens)
-        .fill(0)
-        .map((_, i) => <CharacterBurden id={id} burdenIndex={i} />)
+        typeof burdens === 'number' ?
+          Array(burdens)
+          .fill(0)
+          .map((_, i) => <CharacterBurden id={id} burdenIndex={i} />) :
+          burdens
+          .map(burden => <_CharacterBurden burden={burden} />)
       }
-      <Button icon="add" onClick={newBurden} />
+      {newBurden ? <Button icon="add" onClick={newBurden} /> : null}
     </div>
   </div>
 );
@@ -233,7 +286,7 @@ const CharacterTraits = connect(
 )(_CharacterTraits);
 
 const _AttributeScore = ({label, value, change}) => (
-  <Input label={label} defaultValue={value} onChange={change} />
+  <Input label={label} defaultValue={value} disabled={!change} onChange={change} />
 );
 
 const AttributeScore = connect(
@@ -252,8 +305,8 @@ const AttributeScore = connect(
 
 const _StandingScore = ({label, value, spentValue, changeValue, changeSpent}) => (
   <div>
-    <Input label={label} defaultValue={value} onChange={changeValue} />
-    <Input label="spent" defaultValue={spentValue} onChange={changeSpent} />
+    <Input label={label} defaultValue={value} disabled={!changeValue} onChange={changeValue} />
+    <Input label="spent" defaultValue={spentValue} disabled={!changeSpent} onChange={changeSpent} />
   </div>
 );
 
@@ -285,9 +338,9 @@ const _ResilienceScore = ({
   bonusValue, changeBonus,
 }) => (
   <div>
-    <Input label="bonus" defaultValue={bonusValue} onChange={changeBonus} />
-    <Input label="damage" defaultValue={damageValue} onChange={changeDamage} />
-    <span><Label>{label}</Label>{value}</span>
+    <Input label="bonus" defaultValue={bonusValue} disabled={!changeBonus} onChange={changeBonus} />
+    <Input label="damage" defaultValue={damageValue} disabled={!changeDamage} onChange={changeDamage} />
+    <Input label={label} disabled={true} value={value} />
   </div>
 );
 
@@ -318,6 +371,55 @@ const ResilienceScore = connect(
     ), SCORE_TIMEOUT),
   })
 )(_ResilienceScore);
+
+const _CharacterScores = ({scores}) => (
+  console.log(scores),
+  <div>
+    <Header>Scores</Header>
+    <div>
+      <Header>Attributes</Header>
+      <_AttributeScore label="Physique" score="physique" value={scores.physique} />
+      <_AttributeScore label="Charm" score="charm" value={scores.charm} />
+      <_AttributeScore label="Wits" score="wits" value={scores.wits} />
+    </div>
+    <div>
+      <Header>Standing</Header>
+      <_StandingScore label="Resources" score="resources" 
+        value={scores.resources} spentValue={scores.resourcesLess} />
+      <_StandingScore label="Influence" score="influence" 
+        value={scores.influence} spentValue={scores.influenceLess} />
+      <_StandingScore label="Spirit" score="spirit" 
+        value={scores.spirit} spentValue={scores.spiritLess} />
+    </div>
+    <div>
+      <Header>Resilience</Header>
+      <_ResilienceScore label="Health" score="health"
+        value={
+          scores.physique + scores.resources + scores.resourcesLess +
+          scores.healthBonus + scores.healthLess
+        }
+        damageValue={scores.healthLess}
+        bonusValue={scores.healthBonus}
+        attribute="physique" standing="resources" />
+      <_ResilienceScore label="Reputation" score="reputation"
+        value={
+          scores.charm + scores.influence + scores.influenceLess +
+          scores.reputationBonus + scores.reputationLess
+        }
+        damageValue={scores.reputationLess}
+        bonusValue={scores.reputationBonus}
+        attribute="charm" standing="influence" />
+      <_ResilienceScore label="Willpower" score="willpower"
+        value={
+          scores.wits + scores.spirit + scores.spiritLess +
+          scores.willpowerBonus + scores.willpowerLess
+        }
+        damageValue={scores.willpowerLess}
+        bonusValue={scores.willpowerBonus}
+        attribute="wits" standing="spirit" />
+    </div>
+  </div>
+);
 
 const CharacterScores = ({id}) => (
   <div>
@@ -357,15 +459,18 @@ const _CharacterLore = ({
   <Grid columns="3">
     <Grid.Column><Form.Field inline>
       <Form.Label>Tragedy</Form.Label>
-      <Form.TextArea defaultValue={lore.tragedy} onChange={changeTragedy} />
+      <Form.TextArea defaultValue={lore.tragedy} disabled={!changeTragedy} 
+        onChange={changeTragedy} />
     </Form.Field></Grid.Column>
     <Grid.Column><Form.Field inline>
       <Form.Label>Destiny</Form.Label>
-      <Form.TextArea defaultValue={lore.destiny} onChange={changeDestiny} />
+      <Form.TextArea defaultValue={lore.destiny} disabled={!changeDestiny} 
+        onChange={changeDestiny} />
     </Form.Field></Grid.Column>
     <Grid.Column><Form.Field inline>
       <Form.Label>Secrets Known</Form.Label>
-      <Form.TextArea defaultValue={lore.secretsKnown} onChange={changeSecretsknown} />
+      <Form.TextArea defaultValue={lore.secretsKnown} 
+        disabled={!changeSecretsknown} onChange={changeSecretsknown} />
     </Form.Field></Grid.Column>
   </Grid>
   </Form>
@@ -396,8 +501,8 @@ const CharacterLore = connect(
 
 const _Stunt = ({stunt, changeStunt, removeStunt}) => (
   <div>
-    <Input defaultValue={stunt} onChange={changeStunt} />
-    <Button icon="delete" onClick={removeStunt} />
+    <Input defaultValue={stunt} disabled={!changeStunt} onChange={changeStunt} />
+    {removeStunt ? <Button icon="delete" onClick={removeStunt} /> : null}
   </div>
 );
 
@@ -429,17 +534,24 @@ const _Power = ({
   removePower,
 }) => (
   <div>
-    <Input label="Name" defaultValue={name} onChange={changeName} />
-    <Input label="Type" defaultValue={type} onChange={changeType} />
-    <Input label="Rating" defaultValue={rating} onChange={changeRating} />
-    <Input label="Charges" defaultValue={charges} onChange={changeCharges} />
+    <Input label="Name" defaultValue={name} disabled={!changeName}
+      onChange={changeName} />
+    <Input label="Type" defaultValue={type} disabled={!changeType}
+      onChange={changeType} />
+    <Input label="Rating" defaultValue={rating} disabled={!changeRating}
+      onChange={changeRating} />
+    <Input label="Charges" defaultValue={charges} disabled={!changeCharges}
+      onChange={changeCharges} />
     {
-      Array(stunts)
-      .fill(0)
-      .map((_, i) => <Stunt id={id} powerIndex={powerIndex} stuntIndex={i} />)
+      typeof stunts === 'number' ?
+        Array(stunts)
+        .fill(0)
+        .map((_, i) => <Stunt id={id} powerIndex={powerIndex} stuntIndex={i} />) :
+        stunts
+        .map(stunt => <_Stunt stunt={stunt} />)
     }
-    <Button icon="add" onClick={newStunt} />
-    <Button icon="delete" onClick={removePower} />
+    {newStunt ? <Button icon="add" onClick={newStunt} /> : null}
+    {removePower ? <Button icon="delete" onClick={removePower} /> : null}
   </div>
 );
 
@@ -489,11 +601,14 @@ const _CharacterPowers = ({id, powers, newPower}) => (
   <div>
     <Header>Powers</Header>
     {
-      Array(powers)
-      .fill(0)
-      .map((_, i) => <Power id={id} powerIndex={i} />)
+      typeof powers === 'number' ?
+        Array(powers)
+        .fill(0)
+        .map((_, i) => <Power id={id} powerIndex={i} />) :
+        powers
+        .map(power => <_Power {...power} />)
     }
-    <Button icon="add" onClick={newPower} />
+    {newPower ? <Button icon="add" onClick={newPower} /> : null}
   </div>
 );
 
@@ -516,10 +631,13 @@ const _Item = ({
   removeItem,
 }) => (
   <div>
-    <Input label="Name" defaultValue={name} onChange={changeName} />
-    <Input label="Rules" defaultValue={rules} onChange={changeRules} />
-    <Checkbox label="Prop" checked={prop} onChange={changeProp} />
-    <Button icon="delete" onClick={removeItem} />
+    <Input label="Name" defaultValue={name} disabled={!changeName}
+      onChange={changeName} />
+    <Input label="Rules" defaultValue={rules} disabled={!changeRules}
+      onChange={changeRules} />
+    <Checkbox label="Prop" checked={prop} disabled={!changeProp}
+      onChange={changeProp} />
+    {removeItem ? <Button icon="delete" onClick={removeItem} /> : null}
   </div>
 );
 
@@ -557,11 +675,14 @@ const _CharacterEquipment = ({id, items, newItem}) => (
   <div>
     <Header>Equipment</Header>
     {
-      Array(items)
-      .fill(0)
-      .map((_, i) => <Item id={id} equipmentIndex={i} />)
+      typeof items === 'number' ?
+        Array(items)
+        .fill(0)
+        .map((_, i) => <Item id={id} equipmentIndex={i} />) :
+        items
+        .map(item => <_Item {...item} />)
     }
-    <Button icon="add" onClick={newItem} />
+    {newItem ? <Button icon="add" onClick={newItem} /> : null}
   </div>
 );
 
@@ -577,22 +698,59 @@ const CharacterEquipment = connect(
   })
 )(_CharacterEquipment);
 
+const CharacterMenu = ({id, characterStr}) => (
+  <Button.Group>
+    <Button icon="left chevron" content="Back" as={Link} to={`/character`} />
+    {
+      id ?
+        <Button icon="download" content="Export"
+          as={Link} to={`/character/export/${id}`} /> :
+        <Button icon="upload" content="Import"
+          as={Link} to={`/character/import/${characterStr}`} />
+    }
+    {
+      id ?
+        <Button icon="qrcode" content={id}
+          as={Link} to={`/character/${id}`} /> :
+        null
+    }
+  </Button.Group>
+);
+
+const _Character = ({character}) => (
+  <Container as="div">
+    <CharacterMenu characterStr={btoa(JSON.stringify(character))} />
+    <_CharacterOverview overview={character.overview} />
+    <_CharacterScores scores={character.scores} />
+    <_CharacterTraits burdens={character.traits.burdens}
+      {...character.traits.traits} />
+    <_CharacterPowers powers={character.powers} />
+    <_CharacterEquipment items={character.equipment} />
+    <_CharacterLore lore={character.lore} />
+  </Container>
+);
+
 const Character = ({isCharacter, characterName, match, newCharacter}) => (
   <DocumentTitle title={`Mistborn RPG: ${characterName}`}>
     {
       isCharacter ?
-      <div key="character">
+      <Container as="div" key="character">
+        <CharacterMenu id={match.params.id} />
         <CharacterOverview id={match.params.id} />
         <CharacterScores id={match.params.id} />
         <CharacterTraits id={match.params.id} />
         <CharacterPowers id={match.params.id} />
         <CharacterEquipment id={match.params.id} />
         <CharacterLore id={match.params.id} />
-      </div> :
+      </Container> :
       newCharacter()
     }
   </DocumentTitle>
 );
+
+export {
+  _Character as Character,
+};
 
 export default connect(
   (state, {match}) => ({

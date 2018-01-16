@@ -1,0 +1,7 @@
+.overview :global(.input) {
+  width: 100%;
+}
+
+.overview input {
+  width: 0%;
+}

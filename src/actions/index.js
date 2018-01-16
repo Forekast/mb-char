@@ -3,6 +3,7 @@ export {
   changeCharacter,
   removeCharacter,
   fullCharacter,
+  importCharacter,
   newCharacterBurden,
   changeCharacterBurden,
   removeCharacterBurden,

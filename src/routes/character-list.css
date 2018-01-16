@@ -1,0 +1,7 @@
+:global(.ui.button).delete {
+  display: none;
+}
+
+:global(.edit) :global(.ui.button).delete {
+  display: inline-block;
+}

@@ -3,6 +3,7 @@ import {
   CHANGE_CHARACTER,
   REMOVE_CHARACTER,
   FULL_CHARACTER,
+  IMPORT_CHARACTER,
 
   NEW_CHARACTER_BURDEN,
   CHANGE_CHARACTER_BURDEN,
@@ -54,6 +55,20 @@ export const fullCharacter = character => {
         code: character.id.code,
         owner: false,
       },
+      overview: character.overview,
+      scores: character.scores,
+      traits: character.traits,
+      powers: character.powers,
+      equipment: character.equipment,
+      lore: character.lore,
+    },
+  };
+};
+
+export const importCharacter = character => {
+  return {
+    type: IMPORT_CHARACTER,
+    character: {
       overview: character.overview,
       scores: character.scores,
       traits: character.traits,

@@ -17,6 +17,7 @@ import {
   filter as _filter,
   mergeArray,
   tap as _tap,
+  empty,
 } from 'most';
 
 import {character as characterSel} from '../selectors';
@@ -25,6 +26,7 @@ import {
   CHANGE_CHARACTER,
   REMOVE_CHARACTER,
   FULL_CHARACTER,
+  IMPORT_CHARACTER,
 } from '../constants/action-types';
 import {
   fullCharacter,
@@ -37,6 +39,10 @@ const HUB_ADDRESSES = [
   // 'http://1.tcp.ngrok.io:23009',
   'http://localhost:8000',
 ];
+
+const createId = () => (
+  'xxxxxxxx'.replace(/x/g, () => (Math.random() * 36).toString(36)[0])
+);
 
 const swarms = {};
 
@@ -56,14 +62,24 @@ const hub = signalhub(`mistborn`, HUB_ADDRESSES);
 let sw;
 
 const _shareCharacter = (characterId, action$) => {
-  if (characterId.owner && characterId.code && locals.indexOf(characterId.code) === -1) {
+  console.log('_shareCharacter', characterId);
+  if (
+    characterId.owner &&
+    characterId.code &&
+    locals.indexOf(characterId.code) === -1
+  ) {
     locals.push(characterId.code);
   }
-  if (!characterId.owner && characterId.code && remotes.indexOf(characterId.code) === -1) {
+  if (
+    !characterId.owner &&
+    characterId.code &&
+    remotes.indexOf(characterId.code) === -1
+  ) {
     remotes.push(characterId.code);
   }
+  console.log(locals, remotes);
 
-  if (swarms['all']) {return;}
+  if (swarms['all']) {return empty();}
 
   let character = null;
   let queue = [];
@@ -208,19 +224,30 @@ const _shareCharacter = (characterId, action$) => {
   )(g);
 };
 
-const _stopShare = id => {
+const _stopShare = ({id}) => {
   if (!swarms[id.code]) {return;}
   // swarms[id.code].close();
   swarms[id.code] = null;
 };
 
+const restart = () => {
+  // if (!swarms['all']) {return;}
+  // swarms['all'].close();
+  // swarms['all'] = null;
+  if (swarms.all) {
+    for (const peer of swarms.all.peers) {
+      peer.destroy();
+    }
+  }
+};
+
 const shareCharacter = (action$, state$) => {
   compose(
     observe(_stopShare),
-    map(([state, action]) => (
-      characterSel.inRoot(action.id, state).id
-    )),
-    withState(state$),
+    // map(([state, action]) => (
+    //   characterSel.inRoot(action.id, state).id
+    // )),
+    // withState(state$),
     select(REMOVE_CHARACTER)
   )(action$);
 
@@ -240,18 +267,30 @@ const shareCharacter = (action$, state$) => {
     )(action$),
     compose(
       chain(([state, action]) => {
+        restart();
         if (action.id) {
-          return _shareCharacter({id: action.id, owner: false}, action$);
+          return _shareCharacter({code: action.id, owner: false}, action$);
         }
         else {
           if (!action._id) {
             action._id = createId();
           }
-          return _shareCharacter({id: action._id, owner: true}, action$);
+          return _shareCharacter({code: action._id, owner: true}, action$);
         }
       }),
       withState(state$),
       select(NEW_CHARACTER)
+    )(action$),
+    compose(
+      chain(([state, action]) => {
+        restart();
+        if (!action._id) {
+          action._id = createId();
+        }
+        return _shareCharacter({code: action._id, owner: true}, action$);
+      }),
+      withState(state$),
+      select(IMPORT_CHARACTER)
     )(action$),
     compose(
       chain(action => (
