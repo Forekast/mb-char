@@ -4,6 +4,8 @@ const LORE_KEYS = [
   'tragedy',
   'destiny',
   'secretsKnown',
+  'backstory',
+  'notes',
 ];
 
 const lore = (state = {}, action) => {
@@ -13,6 +15,8 @@ const lore = (state = {}, action) => {
       tragedy: '',
       destiny: '',
       secretsKnown: '',
+      backstory: '',
+      notes: '',
     };
   case CHANGE_CHARACTER:
     if (!action.subtype && LORE_KEYS.indexOf(action.key) !== -1) {

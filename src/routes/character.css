@@ -5,3 +5,35 @@
 .overview input {
   width: 0%;
 }
+
+.scores :global(.input) {
+  width: 100%;
+}
+
+.scores input {
+  width: 0%;
+}
+
+.traits :global(.input) {
+  width: 100%;
+}
+
+.traits input {
+  width: 0%;
+}
+
+.power :global(.input) {
+  width: 100%;
+}
+
+.power input {
+  width: 0%;
+}
+
+.equipmentItem :global(.input) {
+  width: 100%;
+}
+
+.equipmentItem input {
+  width: 0%;
+}

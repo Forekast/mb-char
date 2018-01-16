@@ -5,7 +5,7 @@ import {debounce as throttle} from 'lodash';
 import {Link} from 'react-router-dom';
 import DocumentTitle from 'react-document-title';
 
-import {Form, Input, Header, Button, Label, TextArea, Grid, Checkbox, Popup, Container} from 'semantic-ui-react';
+import {Form, Input, Header, Button, Label, TextArea, Grid, Checkbox, Popup, Divider, Container} from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.css';
 
 import {
@@ -36,7 +36,7 @@ const AREA_TIMEOUT = 1000;
 
 const OverviewInput = (props) => (
   <Input label="Character Name" defaultValue={overview.name}
-    disabled={!(props.onChange || props.onBlur)} {...props} />
+    readOnly={!(props.onChange || props.onBlur)} {...props} />
 )
 
 const _CharacterOverview = ({
@@ -57,41 +57,39 @@ const _CharacterOverview = ({
     <Header>Overview</Header>
     <Grid>
     <Grid.Row>
-      <Grid.Column width={12}>
+      <Grid.Column width={10}>
         <Input label="Character Name" defaultValue={overview.name}
-          disabled={!changeName} onBlur={changeName} />
+          readOnly={!changeName} onBlur={changeName} />
       </Grid.Column>
-      <Grid.Column width={4}>
+      <Grid.Column width={6}>
         <Input placeholder="Concept" defaultValue={overview.concept}
-          disabled={!changeConcept} onChange={changeConcept} />
+          readOnly={!changeConcept} onChange={changeConcept} />
+      </Grid.Column>
+      <Grid.Column width={4}>
+        <Label content="Crew Name" pointing="below" size="mini" />
+        <Input defaultValue={overview.crewName} size="mini"
+          readOnly={!changeCrewName} onChange={changeCrewName} />
+      </Grid.Column>
+      <Grid.Column width={4}>
+        <Label content="Cause" pointing="below" size="mini" />
+        <Input defaultValue={overview.cause} size="mini"
+          readOnly={!changeCause} onChange={changeCause} />
+      </Grid.Column>
+      <Grid.Column width={4}>
+        <Label content="Target" pointing="below" size="mini" />
+        <Input defaultValue={overview.target} size="mini"
+          readOnly={!changeTarget} onChange={changeTarget} />
+      </Grid.Column>
+      <Grid.Column width={4}>
+        <Label content="Method" pointing="below" size="mini" />
+        <Input defaultValue={overview.method} size="mini"
+          readOnly={!changeMethod} onChange={changeMethod} />
       </Grid.Column>
     </Grid.Row>
     <Grid.Row>
       <Grid.Column width={4}>
-        <Label content="Crew Name" pointing="below" />
-        <Input defaultValue={overview.crewName}
-          disabled={!changeCrewName} onChange={changeCrewName} />
-      </Grid.Column>
-      <Grid.Column width={4}>
-        <Label content="Cause" pointing="below" />
-        <Input defaultValue={overview.cause}
-          disabled={!changeCause} onChange={changeCause} />
-      </Grid.Column>
-      <Grid.Column width={4}>
-        <Label content="Target" pointing="below" />
-        <Input defaultValue={overview.target}
-          disabled={!changeTarget} onChange={changeTarget} />
-      </Grid.Column>
-      <Grid.Column width={4}>
-        <Label content="Method" pointing="below" />
-        <Input defaultValue={overview.method}
-          disabled={!changeMethod} onChange={changeMethod} />
-      </Grid.Column>
-    </Grid.Row>
-    <Grid.Row>
-      <Grid.Column width={4}>
-        <Input placeholder="Race" defaultValue={overview.race}
-          disabled={!changeRace} onChange={changeRace} list="races" />
+        <Input placeholder="Race" defaultValue={overview.race} size="mini"
+          readOnly={!changeRace} onChange={changeRace} list="races" />
         <datalist id='races'>
           <option value='Human' />
           <option value='Terris' />
@@ -101,20 +99,20 @@ const _CharacterOverview = ({
         </datalist>
       </Grid.Column>
       <Grid.Column width={3}>
-        <Input placeholder="Sex" defaultValue={overview.sex}
-          disabled={!changeSex} onChange={changeSex} />
+        <Input placeholder="Sex" defaultValue={overview.sex} size="mini"
+          readOnly={!changeSex} onChange={changeSex} />
       </Grid.Column>
       <Grid.Column width={3}>
-        <Input placeholder="Age" defaultValue={overview.age}
-          disabled={!changeAge} onChange={changeAge} />
+        <Input placeholder="Age" defaultValue={overview.age} size="mini"
+          readOnly={!changeAge} onChange={changeAge} />
       </Grid.Column>
       <Grid.Column width={3}>
-        <Input placeholder="Height" defaultValue={overview.height}
-          disabled={!changeHeight} onChange={changeHeight} />
+        <Input placeholder="Height" defaultValue={overview.height} size="mini"
+          readOnly={!changeHeight} onChange={changeHeight} />
       </Grid.Column>
       <Grid.Column width={3}>
-        <Input placeholder="Weight" defaultValue={overview.weight}
-          disabled={!changeWeight} onChange={changeWeight} />
+        <Input placeholder="Weight" defaultValue={overview.weight} size="mini"
+          readOnly={!changeWeight} onChange={changeWeight} />
       </Grid.Column>
     </Grid.Row>
     </Grid>
@@ -174,9 +172,8 @@ const CharacterOverview = connect(
 
 const _CharacterBurden = ({burden, changeBurden, removeBurden}) => (
   <div>
-    <Input defaultValue={burden} disabled={!changeBurden}
-      onChange={changeBurden} />
-    {removeBurden ? <Button icon="delete" onClick={removeBurden} /> : null}
+    <Input defaultValue={burden} readOnly={!changeBurden}
+      onChange={changeBurden} action={removeBurden ? {icon: 'delete', onClick: removeBurden} : null} />
   </div>
 );
 
@@ -212,16 +209,16 @@ const _CharacterTraits = ({
   changePersonality,
   newBurden,
 }) => (
-  <div>
-    <div>
+  <Grid className={styles.traits}>
+    <Grid.Column width={8}>
       <Header>Traits</Header>
-      <Input label="Drive" defaultValue={drive} disabled={!changeDrive} onChange={changeDrive} />
-      <Input label="Profession" defaultValue={profession} disabled={!changeProfession} onChange={changeProfession} />
-      <Input label="Specialty" defaultValue={specialty} disabled={!changeSpecialty} onChange={changeSpecialty} />
-      <Input label="Feature" defaultValue={feature} disabled={!changeFeature} onChange={changeFeature} />
-      <Input label="Personality" defaultValue={personality} disabled={!changePersonality} onChange={changePersonality} />
-    </div>
-    <div>
+      <Input label="Drive" defaultValue={drive} readOnly={!changeDrive} onChange={changeDrive} />
+      <Input label="Profession" defaultValue={profession} readOnly={!changeProfession} onChange={changeProfession} />
+      <Input label="Specialty" defaultValue={specialty} readOnly={!changeSpecialty} onChange={changeSpecialty} />
+      <Input label="Feature" defaultValue={feature} readOnly={!changeFeature} onChange={changeFeature} />
+      <Input label="Personality" defaultValue={personality} readOnly={!changePersonality} onChange={changePersonality} />
+    </Grid.Column>
+    <Grid.Column width={8}>
       <Header>Burdens</Header>
       {
         typeof burdens === 'number' ?
@@ -231,9 +228,9 @@ const _CharacterTraits = ({
           burdens
           .map(burden => <_CharacterBurden burden={burden} />)
       }
-      {newBurden ? <Button icon="add" onClick={newBurden} /> : null}
-    </div>
-  </div>
+      {newBurden ? <Button icon="add" content="Add Burden" onClick={newBurden} /> : null}
+    </Grid.Column>
+  </Grid>
 );
 
 const CharacterTraits = connect(
@@ -286,7 +283,7 @@ const CharacterTraits = connect(
 )(_CharacterTraits);
 
 const _AttributeScore = ({label, value, change}) => (
-  <Input label={label} defaultValue={value} disabled={!change} onChange={change} />
+  <Input label={label} defaultValue={value} readOnly={!change} onChange={change} type="number" min="1" max="7" step="1" />
 );
 
 const AttributeScore = connect(
@@ -305,8 +302,8 @@ const AttributeScore = connect(
 
 const _StandingScore = ({label, value, spentValue, changeValue, changeSpent}) => (
   <div>
-    <Input label={label} defaultValue={value} disabled={!changeValue} onChange={changeValue} />
-    <Input label="spent" defaultValue={spentValue} disabled={!changeSpent} onChange={changeSpent} />
+    <Input label={label} defaultValue={value} readOnly={!changeValue} onChange={changeValue} />
+    <Input label="spent" defaultValue={spentValue} readOnly={!changeSpent} onChange={changeSpent} />
   </div>
 );
 
@@ -338,9 +335,9 @@ const _ResilienceScore = ({
   bonusValue, changeBonus,
 }) => (
   <div>
-    <Input label="bonus" defaultValue={bonusValue} disabled={!changeBonus} onChange={changeBonus} />
-    <Input label="damage" defaultValue={damageValue} disabled={!changeDamage} onChange={changeDamage} />
-    <Input label={label} disabled={true} value={value} />
+    <Input label="bonus" defaultValue={bonusValue} readOnly={!changeBonus} onChange={changeBonus} />
+    <Input label="damage" defaultValue={damageValue} readOnly={!changeDamage} onChange={changeDamage} />
+    <Input label={label} readOnly={true} value={value} />
   </div>
 );
 
@@ -373,78 +370,81 @@ const ResilienceScore = connect(
 )(_ResilienceScore);
 
 const _CharacterScores = ({scores}) => (
-  console.log(scores),
   <div>
     <Header>Scores</Header>
-    <div>
-      <Header>Attributes</Header>
-      <_AttributeScore label="Physique" score="physique" value={scores.physique} />
-      <_AttributeScore label="Charm" score="charm" value={scores.charm} />
-      <_AttributeScore label="Wits" score="wits" value={scores.wits} />
-    </div>
-    <div>
-      <Header>Standing</Header>
-      <_StandingScore label="Resources" score="resources" 
-        value={scores.resources} spentValue={scores.resourcesLess} />
-      <_StandingScore label="Influence" score="influence" 
-        value={scores.influence} spentValue={scores.influenceLess} />
-      <_StandingScore label="Spirit" score="spirit" 
-        value={scores.spirit} spentValue={scores.spiritLess} />
-    </div>
-    <div>
-      <Header>Resilience</Header>
-      <_ResilienceScore label="Health" score="health"
+    <Grid>
+    <Grid.Column>
+      <Grid.Row><Header>Attributes</Header></Grid.Row>
+      <Grid.Row><_AttributeScore label="Physique" score="physique" value={scores.physique} /></Grid.Row>
+      <Grid.Row><_AttributeScore label="Charm" score="charm" value={scores.charm} /></Grid.Row>
+      <Grid.Row><_AttributeScore label="Wits" score="wits" value={scores.wits} /></Grid.Row>
+    </Grid.Column>
+    <Grid.Column>
+      <Grid.Row><Header>Standing</Header></Grid.Row>
+      <Grid.Row><_StandingScore label="Resources" score="resources" 
+        value={scores.resources} spentValue={scores.resourcesLess} /></Grid.Row>
+      <Grid.Row><_StandingScore label="Influence" score="influence" 
+        value={scores.influence} spentValue={scores.influenceLess} /></Grid.Row>
+      <Grid.Row><_StandingScore label="Spirit" score="spirit" 
+        value={scores.spirit} spentValue={scores.spiritLess} /></Grid.Row>
+    </Grid.Column>
+    <Grid.Column>
+      <Grid.Row><Header>Resilience</Header></Grid.Row>
+      <Grid.Row><_ResilienceScore label="Health" score="health"
         value={
           scores.physique + scores.resources + scores.resourcesLess +
           scores.healthBonus + scores.healthLess
         }
         damageValue={scores.healthLess}
         bonusValue={scores.healthBonus}
-        attribute="physique" standing="resources" />
-      <_ResilienceScore label="Reputation" score="reputation"
+        attribute="physique" standing="resources" /></Grid.Row>
+      <Grid.Row><_ResilienceScore label="Reputation" score="reputation"
         value={
           scores.charm + scores.influence + scores.influenceLess +
           scores.reputationBonus + scores.reputationLess
         }
         damageValue={scores.reputationLess}
         bonusValue={scores.reputationBonus}
-        attribute="charm" standing="influence" />
-      <_ResilienceScore label="Willpower" score="willpower"
+        attribute="charm" standing="influence" /></Grid.Row>
+      <Grid.Row><_ResilienceScore label="Willpower" score="willpower"
         value={
           scores.wits + scores.spirit + scores.spiritLess +
           scores.willpowerBonus + scores.willpowerLess
         }
         damageValue={scores.willpowerLess}
         bonusValue={scores.willpowerBonus}
-        attribute="wits" standing="spirit" />
-    </div>
+        attribute="wits" standing="spirit" /></Grid.Row>
+    </Grid.Column>
+    </Grid>
   </div>
 );
 
 const CharacterScores = ({id}) => (
-  <div>
+  <div className={styles.scores}>
     <Header>Scores</Header>
-    <div>
-      <Header>Attributes</Header>
-      <AttributeScore id={id} label="Physique" score="physique" />
-      <AttributeScore id={id} label="Charm" score="charm" />
-      <AttributeScore id={id} label="Wits" score="wits" />
-    </div>
-    <div>
-      <Header>Standing</Header>
-      <StandingScore id={id} label="Resources" score="resources" />
-      <StandingScore id={id} label="Influence" score="influence" />
-      <StandingScore id={id} label="Spirit" score="spirit" />
-    </div>
-    <div>
-      <Header>Resilience</Header>
-      <ResilienceScore id={id} label="Health" score="health"
-        attribute="physique" standing="resources" />
-      <ResilienceScore id={id} label="Reputation" score="reputation"
-        attribute="charm" standing="influence" />
-      <ResilienceScore id={id} label="Willpower" score="willpower"
-        attribute="wits" standing="spirit" />
-    </div>
+    <Grid columns={15}>
+    <Grid.Column width={5}>
+      <Grid.Row><Header>Attributes</Header></Grid.Row>
+      <Grid.Row><AttributeScore id={id} label="Physique" score="physique" /></Grid.Row>
+      <Grid.Row><AttributeScore id={id} label="Charm" score="charm" /></Grid.Row>
+      <Grid.Row><AttributeScore id={id} label="Wits" score="wits" /></Grid.Row>
+    </Grid.Column>
+    <Grid.Column width={5}>
+      <Grid.Row><Header>Standing</Header></Grid.Row>
+      <Grid.Row><Grid.Column width={2}><StandingScore id={id} label="Resources" score="resources" /></Grid.Column></Grid.Row>
+      <Grid.Row><StandingScore id={id} label="Influence" score="influence" /></Grid.Row>
+      <Grid.Row><StandingScore id={id} label="Spirit" score="spirit" /></Grid.Row>
+    </Grid.Column>
+    <Grid.Column width={5}>
+      <Grid.Row><Header>Resilience</Header></Grid.Row>
+      <Grid.Row><ResilienceScore id={id} label="Health" score="health"
+        attribute="physique" standing="resources" /></Grid.Row>
+      <Grid.Row><ResilienceScore id={id} label="Reputation" score="reputation"
+        attribute="charm" standing="influence" /></Grid.Row>
+      <Grid.Row><ResilienceScore id={id} label="Willpower" score="willpower"
+        attribute="wits" standing="spirit" /></Grid.Row>
+    </Grid.Column>
+    </Grid>
   </div>
 );
 
@@ -453,26 +453,36 @@ const _CharacterLore = ({
   changeTragedy,
   changeDestiny,
   changeSecretsknown,
+  changeBackstory,
+  changeNotes,
 }) => (
   <Form>
     <Header>Lore</Header>
-  <Grid columns="3">
-    <Grid.Column><Form.Field inline>
-      <Form.Label>Tragedy</Form.Label>
-      <Form.TextArea defaultValue={lore.tragedy} disabled={!changeTragedy} 
-        onChange={changeTragedy} />
-    </Form.Field></Grid.Column>
-    <Grid.Column><Form.Field inline>
-      <Form.Label>Destiny</Form.Label>
-      <Form.TextArea defaultValue={lore.destiny} disabled={!changeDestiny} 
-        onChange={changeDestiny} />
-    </Form.Field></Grid.Column>
-    <Grid.Column><Form.Field inline>
-      <Form.Label>Secrets Known</Form.Label>
+    <Form.Field>
+      <Label pointing="below">Tragedy</Label>
+      <Form.TextArea defaultValue={lore.tragedy} readOnly={!changeTragedy} 
+        onChange={changeTragedy} autoHeight />
+    </Form.Field>
+    <Form.Field>
+      <Label pointing="below">Destiny</Label>
+      <Form.TextArea defaultValue={lore.destiny} readOnly={!changeDestiny} 
+        onChange={changeDestiny} autoHeight />
+    </Form.Field>
+    <Form.Field>
+      <Label pointing="below">Secrets Known</Label>
       <Form.TextArea defaultValue={lore.secretsKnown} 
-        disabled={!changeSecretsknown} onChange={changeSecretsknown} />
-    </Form.Field></Grid.Column>
-  </Grid>
+        readOnly={!changeSecretsknown} onChange={changeSecretsknown} autoHeight />
+    </Form.Field>
+    <Form.Field>
+      <Label pointing="below">Backstory</Label>
+      <Form.TextArea defaultValue={lore.backstory} 
+        readOnly={!changeBackstory} onChange={changeBackstory} autoHeight />
+    </Form.Field>
+    <Form.Field>
+      <Label pointing="below">Notes</Label>
+      <Form.TextArea defaultValue={lore.notes} 
+        readOnly={!changeNotes} onChange={changeNotes} autoHeight />
+    </Form.Field>
   </Form>
 );
 
@@ -496,14 +506,22 @@ const CharacterLore = connect(
       curry(changeCharacter)({id, key: 'secretsKnown'}),
       fromEvent
     ), AREA_TIMEOUT),
+    changeBackstory: throttle(compose(
+      dispatch,
+      curry(changeCharacter)({id, key: 'backstory'}),
+      fromEvent
+    ), AREA_TIMEOUT),
+    changeNotes: throttle(compose(
+      dispatch,
+      curry(changeCharacter)({id, key: 'notes'}),
+      fromEvent
+    ), AREA_TIMEOUT),
   })
 )(_CharacterLore);
 
 const _Stunt = ({stunt, changeStunt, removeStunt}) => (
-  <div>
-    <Input defaultValue={stunt} disabled={!changeStunt} onChange={changeStunt} />
-    {removeStunt ? <Button icon="delete" onClick={removeStunt} /> : null}
-  </div>
+  <Input defaultValue={stunt} readOnly={!changeStunt} onChange={changeStunt}
+    action={removeStunt ? {icon: 'delete', onClick: removeStunt} : null} />
 );
 
 const Stunt = connect(
@@ -533,26 +551,36 @@ const _Power = ({
   newStunt,
   removePower,
 }) => (
-  <div>
-    <Input label="Name" defaultValue={name} disabled={!changeName}
-      onChange={changeName} />
-    <Input label="Type" defaultValue={type} disabled={!changeType}
-      onChange={changeType} />
-    <Input label="Rating" defaultValue={rating} disabled={!changeRating}
-      onChange={changeRating} />
-    <Input label="Charges" defaultValue={charges} disabled={!changeCharges}
-      onChange={changeCharges} />
+  <Grid>
+  <Grid.Row>
+    <Grid.Column width={6} className={styles.power}>
+      <Input label="Name" defaultValue={name} readOnly={!changeName}
+      onChange={changeName} /></Grid.Column>
+    <Grid.Column width={4} className={styles.power}>
+      <Input placeholder="Type" defaultValue={type} readOnly={!changeType}
+      onChange={changeType} /></Grid.Column>
+    <Grid.Column width={2} className={styles.power}>
+      <Input placeholder="Rating" defaultValue={rating || ''} readOnly={!changeRating}
+      onChange={changeRating} /></Grid.Column>
+    <Grid.Column width={3} className={styles.power}>
+      <Input placeholder="Charges" defaultValue={charges || ''} readOnly={!changeCharges}
+      onChange={changeCharges} /></Grid.Column>
+    <Grid.Column width={1} className={styles.power}>
+      {removePower ? <Button icon="delete" onClick={removePower} /> : null}</Grid.Column>
     {
       typeof stunts === 'number' ?
         Array(stunts)
         .fill(0)
-        .map((_, i) => <Stunt id={id} powerIndex={powerIndex} stuntIndex={i} />) :
+        .map((_, i) => 
+    <Grid.Column width={4}><Stunt id={id} powerIndex={powerIndex} stuntIndex={i} /></Grid.Column>) :
         stunts
-        .map(stunt => <_Stunt stunt={stunt} />)
+        .map(stunt => 
+    <Grid.Column width={4}><_Stunt stunt={stunt} /></Grid.Column>)
     }
-    {newStunt ? <Button icon="add" onClick={newStunt} /> : null}
-    {removePower ? <Button icon="delete" onClick={removePower} /> : null}
-  </div>
+    {newStunt ? 
+    <Grid.Column width={4}><Button icon="add" content="Add Stunt" onClick={newStunt} /></Grid.Column> : null}
+  </Grid.Row>
+  </Grid>
 );
 
 const Power = connect(
@@ -608,7 +636,7 @@ const _CharacterPowers = ({id, powers, newPower}) => (
         powers
         .map(power => <_Power {...power} />)
     }
-    {newPower ? <Button icon="add" onClick={newPower} /> : null}
+    {newPower ? <Grid><Grid.Row><Grid.Column><Button icon="add" content="Add Power" onClick={newPower} /></Grid.Column></Grid.Row></Grid> : null}
   </div>
 );
 
@@ -630,15 +658,17 @@ const _Item = ({
   prop, changeProp,
   removeItem,
 }) => (
-  <div>
-    <Input label="Name" defaultValue={name} disabled={!changeName}
-      onChange={changeName} />
-    <Input label="Rules" defaultValue={rules} disabled={!changeRules}
-      onChange={changeRules} />
-    <Checkbox label="Prop" checked={prop} disabled={!changeProp}
-      onChange={changeProp} />
-    {removeItem ? <Button icon="delete" onClick={removeItem} /> : null}
-  </div>
+  <Grid className={styles.equipmentItem}>
+    <Grid.Row>
+    <Grid.Column width={4}><Input label="Name" defaultValue={name} readOnly={!changeName}
+      onChange={changeName} /></Grid.Column>
+    <Grid.Column width={9}><Input label="Rules" defaultValue={rules} readOnly={!changeRules}
+      onChange={changeRules} /></Grid.Column>
+    <Grid.Column width={2}><Checkbox label="Prop" checked={prop} readOnly={!changeProp}
+      onChange={changeProp} /></Grid.Column>
+    {removeItem ? <Grid.Column width={1}><Button icon="delete" onClick={removeItem} /></Grid.Column> : null}
+    </Grid.Row>
+  </Grid>
 );
 
 const Item = connect(
@@ -682,7 +712,7 @@ const _CharacterEquipment = ({id, items, newItem}) => (
         items
         .map(item => <_Item {...item} />)
     }
-    {newItem ? <Button icon="add" onClick={newItem} /> : null}
+    {newItem ? <Grid><Grid.Row><Grid.Column width={16}><Button icon="add" content="Add Item" onClick={newItem} /></Grid.Column></Grid.Row></Grid> : null}
   </div>
 );
 
@@ -720,12 +750,18 @@ const CharacterMenu = ({id, characterStr}) => (
 const _Character = ({character}) => (
   <Container as="div">
     <CharacterMenu characterStr={btoa(JSON.stringify(character))} />
+    <Divider />
     <_CharacterOverview overview={character.overview} />
+    <Divider />
     <_CharacterScores scores={character.scores} />
+    <Divider />
     <_CharacterTraits burdens={character.traits.burdens}
       {...character.traits.traits} />
+    <Divider />
     <_CharacterPowers powers={character.powers} />
+    <Divider />
     <_CharacterEquipment items={character.equipment} />
+    <Divider />
     <_CharacterLore lore={character.lore} />
   </Container>
 );
@@ -736,11 +772,17 @@ const Character = ({isCharacter, characterName, match, newCharacter}) => (
       isCharacter ?
       <Container as="div" key="character">
         <CharacterMenu id={match.params.id} />
+        <Divider />
         <CharacterOverview id={match.params.id} />
+        <Divider />
         <CharacterScores id={match.params.id} />
+        <Divider />
         <CharacterTraits id={match.params.id} />
+        <Divider />
         <CharacterPowers id={match.params.id} />
+        <Divider />
         <CharacterEquipment id={match.params.id} />
+        <Divider />
         <CharacterLore id={match.params.id} />
       </Container> :
       newCharacter()
