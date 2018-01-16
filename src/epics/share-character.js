@@ -35,9 +35,9 @@ import {
 const PERSIST_REHYDRATE = 'persist/REHYDRATE';
 
 const HUB_ADDRESSES = [
-  // 'signalhub-jccqtwhdwc.now.sh',
+  'signalhub-jccqtwhdwc.now.sh',
   // 'http://1.tcp.ngrok.io:23009',
-  'http://localhost:8000',
+  // 'http://localhost:8000',
 ];
 
 const createId = () => (
