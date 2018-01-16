@@ -101,6 +101,9 @@ const _shareCharacter = (characterId, action$) => {
         if (data.characters.find(cid => remotes.indexOf(cid) !== -1)) {
           return data;
         }
+        if (data.characters.find(cid => locals.indexOf(cid) !== -1)) {
+          return data;
+        }
       },
     });
   }
