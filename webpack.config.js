@@ -1,9 +1,16 @@
 const {join} = require('path');
 
+const webpack = require('webpack');
+const webpackIf = require('webpack-if');
+
+const ChildCompilerLoaderListPlugin = require('child-compiler-loader-list-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-module.exports = {
+const ifProd = webpackIf.ifElse(process.env.NODE_ENV === 'production');
+
+module.exports = webpackIf({
   devServer: {
     // host: 'mb-char.zerachu.com',
     port: 8081,
@@ -21,12 +28,6 @@ module.exports = {
     path: join(__dirname, 'dist'),
     filename: '[name].js',
   },
-  resolve: {
-    alias: {
-      'react': 'preact-compat',
-      'react-dom': 'preact-compat',
-    },
-  },
   module: {
     rules: [
       {
@@ -35,6 +36,7 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
+            plugins: [ifProd('lodash'), ifProd('ramda')],
             presets: [
               ['env', {
                 modules: false,
@@ -46,9 +48,31 @@ module.exports = {
         },
       },
       {
+        test: /\.js$/,
+        include: /node_modules/,
+        exclude: /localforage/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            plugins: [ifProd('lodash'), ifProd('ramda')],
+          },
+        },
+      },
+      {
         test: /\.css$/,
         exclude: join(__dirname, 'node_modules'),
-        use: [
+        use: ifProd(() => ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: [
+            {
+              loader: 'css-loader',
+              options: {
+                module: true,
+              },
+            },
+            'postcss-loader',
+          ],
+        }), () => ([
           'style-loader',
           {
             loader: 'css-loader',
@@ -57,12 +81,24 @@ module.exports = {
             },
           },
           'postcss-loader',
-        ],
+        ])),
       },
       {
         test: /\.css$/,
         include: join(__dirname, 'node_modules'),
-        use: [
+        use: ifProd(() => ExtractTextPlugin.extract({
+          fallback: [
+            'style-loader',
+          ],
+          use: [
+            {
+              loader: 'css-loader',
+              options: {
+                module: false,
+              },
+            },
+          ]
+        }), () => ([
           'style-loader',
           {
             loader: 'css-loader',
@@ -70,7 +106,7 @@ module.exports = {
               module: false,
             },
           },
-        ],
+        ])),
       },
       {
         test: /\.(png|jpg|jpeg|webp|gif|bmp|tiff|svg|ttf|woff|woff2|eot)$/,
@@ -78,11 +114,22 @@ module.exports = {
       },
     ],
   },
+  resolve: {
+    alias: {
+      'react': 'preact-compat',
+      'react-dom': 'preact-compat',
+    },
+  },
   plugins: [
     new HardSourceWebpackPlugin(),
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: './src/index.html.js',
     }),
+    ifProd(() => new webpack.DefinePlugin({
+      'process.env.NODE_ENV': '"production"',
+      'process.env.BABEL_ENV': '"production"',
+    })),
+    ifProd(() => new ExtractTextPlugin('styles.css')),
   ],
-};
+});

@@ -2,10 +2,17 @@ import {h} from 'preact';
 import {connect} from 'react-redux';
 import {Link} from 'react-router-dom';
 import {DocumentTitle} from 'react-document-title';
-import {
-  Input, Header, Button, Grid, Menu, Segment, Form, Checkbox, Container,
-} from 'semantic-ui-react';
 import {compose} from 'ramda';
+
+import Button from 'semantic-ui-react/dist/es/elements/Button';
+import Input from 'semantic-ui-react/dist/es/elements/Input';
+import Header from 'semantic-ui-react/dist/es/elements/Header';
+import Segment from 'semantic-ui-react/dist/es/elements/Segment';
+import Checkbox from 'semantic-ui-react/dist/es/modules/Checkbox';
+import Container from 'semantic-ui-react/dist/es/elements/Container';
+import Form from 'semantic-ui-react/dist/es/collections/Form';
+import Menu from 'semantic-ui-react/dist/es/collections/Menu';
+import Grid from 'semantic-ui-react/dist/es/collections/Grid';
 
 import {newCharacter, removeCharacter} from '../actions';
 

@@ -1,11 +1,23 @@
 import {h} from 'preact';
 import {connect} from 'react-redux';
 import {compose, curry} from 'ramda';
-import {debounce as throttle} from 'lodash';
+import {debounce} from 'lodash';
 import {Link} from 'react-router-dom';
 import DocumentTitle from 'react-document-title';
 
-import {Form, Input, Header, Button, Label, TextArea, Grid, Checkbox, Popup, Divider, Container} from 'semantic-ui-react';
+import Button from 'semantic-ui-react/dist/es/elements/Button';
+import Input from 'semantic-ui-react/dist/es/elements/Input';
+import Header from 'semantic-ui-react/dist/es/elements/Header';
+import Segment from 'semantic-ui-react/dist/es/elements/Segment';
+import Checkbox from 'semantic-ui-react/dist/es/modules/Checkbox';
+import Container from 'semantic-ui-react/dist/es/elements/Container';
+import Form from 'semantic-ui-react/dist/es/collections/Form';
+import Menu from 'semantic-ui-react/dist/es/collections/Menu';
+import Grid from 'semantic-ui-react/dist/es/collections/Grid';
+import Divider from 'semantic-ui-react/dist/es/elements/Divider';
+import TextArea from 'semantic-ui-react/dist/es/addons/TextArea';
+import Label from 'semantic-ui-react/dist/es/elements/Label';
+
 import 'semantic-ui-css/semantic.css';
 
 import {
@@ -130,43 +142,43 @@ const CharacterOverview = connect(
     changeName: (
       compose(dispatch, curry(changeCharacter)({id, key: 'name'}), fromEvent)
     ),
-    changeConcept: throttle(
+    changeConcept: debounce(
       compose(dispatch, curry(changeCharacter)({id, key: 'concept'}), fromEvent),
       1000
     ),
-    changeCrewName: throttle(
+    changeCrewName: debounce(
       compose(dispatch, curry(changeCharacter)({id, key: 'crewName'}), fromEvent),
       1000
     ),
-    changeCause: throttle(
+    changeCause: debounce(
       compose(dispatch, curry(changeCharacter)({id, key: 'cause'}), fromEvent),
       1000
     ),
-    changeTarget: throttle(
+    changeTarget: debounce(
       compose(dispatch, curry(changeCharacter)({id, key: 'target'}), fromEvent),
       1000
     ),
-    changeMethod: throttle(
+    changeMethod: debounce(
       compose(dispatch, curry(changeCharacter)({id, key: 'method'}), fromEvent),
       1000
     ),
-    changeRace: throttle(
+    changeRace: debounce(
       compose(dispatch, curry(changeCharacter)({id, key: 'race'}), fromEvent),
       1000
     ),
-    changeSex: throttle(
+    changeSex: debounce(
       compose(dispatch, curry(changeCharacter)({id, key: 'sex'}), fromEvent),
       1000
     ),
-    changeAge: throttle(
+    changeAge: debounce(
       compose(dispatch, curry(changeCharacter)({id, key: 'age'}), fromEvent),
       1000
     ),
-    changeHeight: throttle(
+    changeHeight: debounce(
       compose(dispatch, curry(changeCharacter)({id, key: 'height'}), fromEvent),
       1000
     ),
-    changeWeight: throttle(
+    changeWeight: debounce(
       compose(dispatch, curry(changeCharacter)({id, key: 'weight'}), fromEvent),
       1000
     ),
@@ -185,7 +197,7 @@ const CharacterBurden = connect(
     burden: characterSel.burdensInRoot(id, state)[burdenIndex],
   }),
   (dispatch, {id, burdenIndex}) => ({
-    changeBurden: throttle(compose(
+    changeBurden: debounce(compose(
       dispatch,
       curry(changeCharacterBurden)({id}, burdenIndex),
       fromEvent
@@ -247,35 +259,35 @@ const CharacterTraits = connect(
   }),
   (dispatch, {id}) => ({
     changeDrive: (
-      throttle(compose(
+      debounce(compose(
         dispatch,
         curry(changeCharacter)({id, key: 'drive'}),
         fromEvent
       ), INPUT_TIMEOUT)
     ),
     changeProfession: (
-      throttle(compose(
+      debounce(compose(
         dispatch,
         curry(changeCharacter)({id, key: 'profession'}),
         fromEvent
       ), INPUT_TIMEOUT)
     ),
     changeSpecialty: (
-      throttle(compose(
+      debounce(compose(
         dispatch,
         curry(changeCharacter)({id, key: 'specialty'}),
         fromEvent
       ), INPUT_TIMEOUT)
     ),
     changeFeature: (
-      throttle(compose(
+      debounce(compose(
         dispatch,
         curry(changeCharacter)({id, key: 'feature'}),
         fromEvent
       ), INPUT_TIMEOUT)
     ),
     changePersonality: (
-      throttle(compose(
+      debounce(compose(
         dispatch,
         curry(changeCharacter)({id, key: 'personality'}),
         fromEvent
@@ -325,7 +337,7 @@ const AttributeScore = connect(
     mods: characterSel.scoresInRoot(id, state)[`${score}Mods`] || [],
   }),
   (dispatch, {id, score}) => ({
-    change: throttle(compose(
+    change: debounce(compose(
       dispatch,
       curry(changeCharacter)({id, key: score}),
       v => Number(v) || 0,
@@ -335,13 +347,13 @@ const AttributeScore = connect(
       dispatch,
       () => newCharacterScoreMod({id}, score)
     ),
-    changeModValue: index => throttle(compose(
+    changeModValue: index => debounce(compose(
       dispatch,
       curry(changeCharacterScoreMod)({id}, score, index),
       v => ({value: Number(v) || 0}),
       fromEvent
     ), SCORE_TIMEOUT),
-    changeModName: index => throttle(compose(
+    changeModName: index => debounce(compose(
       dispatch,
       curry(changeCharacterScoreMod)({id}, score, index),
       name => ({name}),
@@ -367,13 +379,13 @@ const StandingScore = connect(
     spentValue: characterSel.scoresInRoot(id, state)[`${score}Less`],
   }),
   (dispatch, {id, score}) => ({
-    changeValue: throttle(compose(
+    changeValue: debounce(compose(
       dispatch,
       curry(changeCharacter)({id, key: score}),
       v => Number(v) || 0,
       fromEvent
     ), SCORE_TIMEOUT),
-    changeSpent: throttle(compose(
+    changeSpent: debounce(compose(
       dispatch,
       curry(changeCharacter)({id, key: `${score}Less`}),
       v => Number(v) || 0,
@@ -414,13 +426,13 @@ const ResilienceScore = connect(
       dispatch,
       () => newCharacterScoreMod({id}, score)
     ),
-    changeModValue: index => throttle(compose(
+    changeModValue: index => debounce(compose(
       dispatch,
       curry(changeCharacterScoreMod)({id}, score, index),
       v => ({value: Number(v) || 0}),
       fromEvent
     ), SCORE_TIMEOUT),
-    changeModName: index => throttle(compose(
+    changeModName: index => debounce(compose(
       dispatch,
       curry(changeCharacterScoreMod)({id}, score, index),
       name => ({name}),
@@ -567,27 +579,27 @@ const CharacterLore = connect(
     lore: characterSel.loreInRoot(id, state),
   }),
   (dispatch, {id}) => ({
-    changeTragedy: throttle(compose(
+    changeTragedy: debounce(compose(
       dispatch,
       curry(changeCharacter)({id, key: 'tragedy'}),
       fromEvent
     ), AREA_TIMEOUT),
-    changeDestiny: throttle(compose(
+    changeDestiny: debounce(compose(
       dispatch,
       curry(changeCharacter)({id, key: 'destiny'}),
       fromEvent
     ), AREA_TIMEOUT),
-    changeSecretsknown: throttle(compose(
+    changeSecretsknown: debounce(compose(
       dispatch,
       curry(changeCharacter)({id, key: 'secretsKnown'}),
       fromEvent
     ), AREA_TIMEOUT),
-    changeBackstory: throttle(compose(
+    changeBackstory: debounce(compose(
       dispatch,
       curry(changeCharacter)({id, key: 'backstory'}),
       fromEvent
     ), AREA_TIMEOUT),
-    changeNotes: throttle(compose(
+    changeNotes: debounce(compose(
       dispatch,
       curry(changeCharacter)({id, key: 'notes'}),
       fromEvent
@@ -605,7 +617,7 @@ const Stunt = connect(
     stunt: characterSel.powersInRoot(id, state)[powerIndex].stunts[stuntIndex],
   }),
   (dispatch, {id, powerIndex, stuntIndex}) => ({
-    changeStunt: throttle(compose(
+    changeStunt: debounce(compose(
       dispatch,
       curry(changeCharacterStunt)({id}, powerIndex, stuntIndex),
       fromEvent
@@ -668,23 +680,23 @@ const Power = connect(
     stunts: characterSel.powersInRoot(id, state)[powerIndex].stunts.length,
   }),
   (dispatch, {id, powerIndex}) => ({
-    changeName: throttle(compose(
+    changeName: debounce(compose(
       dispatch,
       curry(changeCharacterPower)({id, key: powerIndex, subkey: 'name'}),
       fromEvent
     ), INPUT_TIMEOUT),
-    changeType: throttle(compose(
+    changeType: debounce(compose(
       dispatch,
       curry(changeCharacterPower)({id, key: powerIndex, subkey: 'type'}),
       fromEvent
     ), INPUT_TIMEOUT),
-    changeRating: throttle(compose(
+    changeRating: debounce(compose(
       dispatch,
       curry(changeCharacterPower)({id, key: powerIndex, subkey: 'rating'}),
       v => Number(v) || 0,
       fromEvent
     ), SCORE_TIMEOUT),
-    changeCharges: throttle(compose(
+    changeCharges: debounce(compose(
       dispatch,
       curry(changeCharacterPower)({id, key: powerIndex, subkey: 'charges'}),
       v => Number(v) || 0,
@@ -754,12 +766,12 @@ const Item = connect(
     prop: characterSel.equipmentInRoot(id, state)[equipmentIndex].prop,
   }),
   (dispatch, {id, equipmentIndex}) => ({
-    changeName: throttle(compose(
+    changeName: debounce(compose(
       dispatch,
       curry(changeCharacterEquipment)({id, subkey: 'name'}, equipmentIndex),
       fromEvent
     ), INPUT_TIMEOUT),
-    changeRules: throttle(compose(
+    changeRules: debounce(compose(
       dispatch,
       curry(changeCharacterEquipment)({id, subkey: 'rules'}, equipmentIndex),
       fromEvent

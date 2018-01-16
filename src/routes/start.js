@@ -4,7 +4,8 @@ import {connect} from 'react-redux';
 import {compose} from 'ramda';
 import DocumentTitle from 'react-document-title';
 
-import {Form} from 'semantic-ui-react';
+import Form from 'semantic-ui-react/dist/es/collections/Form';
+
 import 'semantic-ui-css/semantic.css';
 
 import {newCharacter} from '../actions';
