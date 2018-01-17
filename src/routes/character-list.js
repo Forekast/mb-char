@@ -6,6 +6,7 @@ import {compose} from 'ramda';
 
 import Button from 'semantic-ui-react/dist/es/elements/Button';
 import Input from 'semantic-ui-react/dist/es/elements/Input';
+import Icon from 'semantic-ui-react/dist/es/elements/Icon';
 import Header from 'semantic-ui-react/dist/es/elements/Header';
 import Segment from 'semantic-ui-react/dist/es/elements/Segment';
 import Checkbox from 'semantic-ui-react/dist/es/modules/Checkbox';
@@ -16,11 +17,13 @@ import Grid from 'semantic-ui-react/dist/es/collections/Grid';
 
 import {newCharacter, removeCharacter} from '../actions';
 
+import {ConnectionStatus} from './character';
+
 import styles from './character-list.css';
 
 const _CharacterList = ({characters, newCharacter, addCharacter, removeCharacter}) => (
   <DocumentTitle title="Mistborn RPG">
-    <Container as="div">
+    <Container as="div" text>
     <Button content="Toggle Delete Buttons" onClick={ev => (
       ev.currentTarget.parentElement.classList.toggle('edit')
     )} />
@@ -32,7 +35,9 @@ const _CharacterList = ({characters, newCharacter, addCharacter, removeCharacter
           as={Link}
           to={`/character/${c.id.code}`}
           style={{position: 'relative'}}>
+          <span><Icon name="vcard" /></span>
           {c.overview.name}
+          <ConnectionStatus id={c.id.code} className={styles.undelete} />
           <Button className={styles.delete} icon="delete" content="Delete" _characterId={c.id.code}
             style={{position: 'absolute', right: 0, top: '3px', bottom: '2px'}}
             onClick={removeCharacter}/>
@@ -54,7 +59,9 @@ const _CharacterList = ({characters, newCharacter, addCharacter, removeCharacter
           as={Link}
           to={`/character/${c.id.code}`}
           style={{position: 'relative'}}>
+          <span><Icon name="vcard" /></span>
           {c.overview.name || ' '}
+          <ConnectionStatus id={c.id.code} className={styles.undelete} />
           <Button className={styles.delete} icon="delete" content="Delete" _characterId={c.id.code}
             style={{position: 'absolute', right: 0, top: '3px', bottom: '2px'}}
             onClick={removeCharacter}/>

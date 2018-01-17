@@ -5,3 +5,11 @@
 :global(.edit) :global(.ui.button).delete {
   display: inline-block;
 }
+
+.undelete {
+  float: right;
+}
+
+:global(.edit) .undelete {
+  display: none;
+}

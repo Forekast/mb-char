@@ -817,19 +817,44 @@ const CharacterEquipment = connect(
   })
 )(_CharacterEquipment);
 
-const _NetworkStatus = ({id, character, network}) => (
+const _ConnectionStatus = ({characterId, network, className}) => (
+  characterId ?
+    (<span className={className}><Icon name="user" />{characterId.owner ?
+      network.connections.reduce((carry, c) => (
+        carry + (c.reads.indexOf(characterId.code) !== -1 ? 1 : 0)
+      ), 0) + ' Connected' :
+      (
+        network.connections.find(c => (
+          c.owns.indexOf(characterId.code) !== -1
+        )) ?
+          'Connected' :
+          'Disconnected'
+      )}</span>) :
+    <span />
+);
+
+export const ConnectionStatus = connect(
+  (state, {id}) => ({
+    characterId: id ? characterSel.inRoot(id, state).id : null,
+    network: state.network,
+  })
+)(_ConnectionStatus);
+
+const _NetworkStatus = ({id, characterId, network}) => (
   <Button>
-    {
+    <span><Icon name="wifi" />{
       network.status.state === 'ONLINE' ?
         'Online' :
         'Offline'
-    }
+    }</span>
+    &nbsp;
+    {<_ConnectionStatus characterId={characterId} network={network} />}
   </Button>
 );
 
 export const NetworkStatus = connect(
   (state, {id}) => ({
-    character: id ? characterSel.inRoot(id, state) : null,
+    characterId: id ? characterSel.inRoot(id, state).id : null,
     network: state.network,
   })
 )(_NetworkStatus);
@@ -850,7 +875,7 @@ const CharacterMenu = ({id, characterStr}) => (
           as={Link} to={`/character/${id}`} /> :
         null
     }
-    <NetworkStatus />
+    <NetworkStatus id={id} />
   </Button.Group>
 );
 
