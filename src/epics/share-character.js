@@ -129,7 +129,7 @@ const _shareCharacter = (characterId, action$) => {
             owns: data.owns,
             reads: data.reads,
           });
-          if (swarm.remotes[data.from]) {
+          if (sw.remotes[data.from]) {
             queue.push(updateConnection({
               id: data.from,
               owns: data.owns,
