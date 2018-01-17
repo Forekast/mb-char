@@ -7,6 +7,7 @@ import DocumentTitle from 'react-document-title';
 
 import Button from 'semantic-ui-react/dist/es/elements/Button';
 import Input from 'semantic-ui-react/dist/es/elements/Input';
+import Icon from 'semantic-ui-react/dist/es/elements/Icon';
 import Header from 'semantic-ui-react/dist/es/elements/Header';
 import Segment from 'semantic-ui-react/dist/es/elements/Segment';
 import Checkbox from 'semantic-ui-react/dist/es/modules/Checkbox';
@@ -816,6 +817,23 @@ const CharacterEquipment = connect(
   })
 )(_CharacterEquipment);
 
+const _NetworkStatus = ({id, character, network}) => (
+  <Button>
+    {
+      network.status.state === 'ONLINE' ?
+        'Online' :
+        'Offline'
+    }
+  </Button>
+);
+
+export const NetworkStatus = connect(
+  (state, {id}) => ({
+    character: id ? characterSel.inRoot(id, state) : null,
+    network: state.network,
+  })
+)(_NetworkStatus);
+
 const CharacterMenu = ({id, characterStr}) => (
   <Button.Group>
     <Button icon="left chevron" content="Back" as={Link} to={`/character`} />
@@ -832,6 +850,7 @@ const CharacterMenu = ({id, characterStr}) => (
           as={Link} to={`/character/${id}`} /> :
         null
     }
+    <NetworkStatus />
   </Button.Group>
 );
 

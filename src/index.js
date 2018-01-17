@@ -11,6 +11,10 @@ import configureStore from './store';
 
 window.regeneratorRuntime = require('regenerator-runtime');
 
+if (process.env.NODE_ENV === 'production') {
+  require('offline-plugin/runtime').install();
+}
+
 const {persistor, store} = configureStore();
 
 render((<Provider store={store}><PersistGate persistor={persistor}><HashRouter>

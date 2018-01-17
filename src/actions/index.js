@@ -25,3 +25,10 @@ export {
   changeCharacterEquipment,
   removeCharacterEquipment,
 } from './character';
+
+export {
+  updateConnection,
+  removeConnection,
+  online,
+  offline,
+} from './network';

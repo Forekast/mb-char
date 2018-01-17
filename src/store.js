@@ -16,6 +16,7 @@ import epics from './epics';
 const persistConfig = {
   key: 'root',
   storage: localForage,
+  blacklist: ['network'],
 };
 
 const persistReducers = persistCombineReducers(persistConfig, object);

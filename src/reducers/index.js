@@ -9,6 +9,7 @@ import {
 } from '../constants/action-types';
 
 import character from './character';
+import network from './network';
 
 const createId = () => (
   'xxxxxxxx'.replace(/x/g, () => (Math.random() * 36).toString(36)[0])
@@ -69,6 +70,7 @@ const characterSet = (state = [], action) => {
 
 export const object = {
   characterSet,
+  network,
 };
 
 export default combineReducers(object);

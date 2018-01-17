@@ -30,6 +30,11 @@ import {
 } from '../constants/action-types';
 import {
   fullCharacter,
+
+  updateConnection,
+  removeConnection,
+  online,
+  offline,
 } from '../actions';
 
 const PERSIST_REHYDRATE = 'persist/REHYDRATE';
@@ -87,21 +92,66 @@ const _shareCharacter = (characterId, action$) => {
 
   // const hub = signalhub(`mistborn-${characterId.code}`, HUB_ADDRESSES);
 
+  const peerData = new Map();
+
   if (!sw) {
+    let netTimeoutId = -1;
+
     sw = swarm(hub, {
       wrap(data, uid) {
-        data.characters = locals;
+        data.owns = locals;
+        data.reads = remotes;
         return data;
       },
       unwrap(data, uid) {
+        // Heard from hub
+        queue.push(online());
+        resolve();
+        clearTimeout(netTimeoutId);
+        netTimeoutId = setTimeout(
+          () => {
+            queue.push(offline());
+            resolve();
+          },
+          20000
+        );
+
         console.log(sw.me, data.from, uid, data.characters, locals, remotes);
-        if (uid === sw.me) {
+        if (data.characters) {
+          data.owns = data.characters;
+          data.reads = [];
+        }
+        if (data.owns.find(cid => locals.indexOf(cid) !== -1)) {
           return data;
         }
-        if (data.characters.find(cid => remotes.indexOf(cid) !== -1)) {
+        if (data.owns.find(cid => remotes.indexOf(cid) !== -1)) {
+          peerData.set(data.from, {
+            owns: data.owns,
+            reads: data.reads,
+          });
+          if (swarm.remotes[data.from]) {
+            queue.push(updateConnection({
+              id: data.from,
+              owns: data.owns,
+              reads: data.reads,
+            }));
+            resolve();
+          }
           return data;
         }
-        if (data.characters.find(cid => locals.indexOf(cid) !== -1)) {
+        if (data.reads.find(cid => locals.indexOf(cid) !== -1)) {
+          peerData.set(data.from, {
+            owns: data.owns,
+            reads: data.reads,
+          });
+          if (swarm.remotes[data.from]) {
+            queue.push(updateConnection({
+              id: data.from,
+              owns: data.owns,
+              reads: data.reads,
+            }));
+            resolve();
+          }
           return data;
         }
       },
@@ -116,6 +166,15 @@ const _shareCharacter = (characterId, action$) => {
     console.dir(peer);
     console.log(characterId, character);
     console.log(characters);
+    const data = peerData.get(id);
+    if (data) {
+      queue.push(updateConnection({
+        id,
+        owns: data.owns,
+        reads: data.reads,
+      }));
+      resolve();
+    }
     for (const character of characters) {
       console.log(character);
       console.log('send', character.type);
@@ -145,6 +204,9 @@ const _shareCharacter = (characterId, action$) => {
   sw.on('disconnect', function (peer, id) {
     console.log('disconnected from a peer:', id);
     console.log('total peers:', sw.peers.length);
+
+    queue.push(removeConnection(id));
+    resolve();
   });
 
   sw.on('close', function () {

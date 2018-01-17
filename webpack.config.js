@@ -3,10 +3,10 @@ const {join} = require('path');
 const webpack = require('webpack');
 const webpackIf = require('webpack-if');
 
-const ChildCompilerLoaderListPlugin = require('child-compiler-loader-list-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const OfflinePlugin = require('offline-plugin');
 
 const ifProd = webpackIf.ifElse(process.env.NODE_ENV === 'production');
 
@@ -131,5 +131,6 @@ module.exports = webpackIf({
       'process.env.BABEL_ENV': '"production"',
     })),
     ifProd(() => new ExtractTextPlugin('styles.css')),
+    ifProd(() => new OfflinePlugin()),
   ],
 });
