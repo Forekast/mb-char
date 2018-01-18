@@ -450,27 +450,28 @@ const _CharacterScores = ({scores}) => (
   <div className={styles.scores}>
     <Header>Scores</Header>
     <Grid>
-    <Grid.Column width={5}>
-      <Grid.Row><Header>Attributes</Header></Grid.Row>
-      <Grid.Row><_AttributeScore label="Physique" score="physique" value={scores.physique} mods={(scores.physiqueMods || [])} /></Grid.Row>
-      <Grid.Row><_AttributeScore label="Charm" score="charm" value={scores.charm} mods={(scores.charmMods || [])} /></Grid.Row>
-      <Grid.Row><_AttributeScore label="Wits" score="wits" value={scores.wits} mods={(scores.witsMods || [])} /></Grid.Row>
+    <Grid.Row columns={3}>
+    <Grid.Column>
+      <Header>Attributes</Header>
+      <_AttributeScore label="Physique" score="physique" value={scores.physique} mods={(scores.physiqueMods || [])} />
+      <_AttributeScore label="Charm" score="charm" value={scores.charm} mods={(scores.charmMods || [])} />
+      <_AttributeScore label="Wits" score="wits" value={scores.wits} mods={(scores.witsMods || [])} />
     </Grid.Column>
-    <Grid.Column width={5}>
-      <Grid.Row><Header>Standing</Header></Grid.Row>
-      <Grid.Row><_AttributeScore label="Resources" score="resources"  
+    <Grid.Column>
+      <Header>Standing</Header>
+      <_AttributeScore label="Resources" score="resources"
         mods={(scores.resourcesMods || [])} value={scores.resources}
-        spentValue={scores.resourcesLess} /></Grid.Row>
-      <Grid.Row><_AttributeScore label="Influence" score="influence"  
+        spentValue={scores.resourcesLess} />
+      <_AttributeScore label="Influence" score="influence"
         mods={(scores.influenceMods || [])} value={scores.influence}
-        spentValue={scores.influenceLess} /></Grid.Row>
-      <Grid.Row><_AttributeScore label="Spirit" score="spirit"  
+        spentValue={scores.influenceLess} />
+      <_AttributeScore label="Spirit" score="spirit"
         mods={(scores.spiritMods || [])} value={scores.spirit}
-        spentValue={scores.spiritLess} /></Grid.Row>
+        spentValue={scores.spiritLess} />
     </Grid.Column>
-    <Grid.Column width={5}>
-      <Grid.Row><Header>Resilience</Header></Grid.Row>
-      <Grid.Row><_AttributeScore label="Health" score="health"
+    <Grid.Column>
+      <Header>Resilience</Header>
+      <_AttributeScore label="Health" score="health"
         value={
           scores.physique + (scores.physiqueMods || [])
           .reduce((carry, {value}) => carry + value, 0) +
@@ -480,8 +481,8 @@ const _CharacterScores = ({scores}) => (
           .reduce((carry, {value}) => carry + value, 0)
         }
         mods={(scores.healthMods || [])}
-        attribute="physique" standing="resources" /></Grid.Row>
-      <Grid.Row><_AttributeScore label="Reputation" score="reputation"
+        attribute="physique" standing="resources" />
+      <_AttributeScore label="Reputation" score="reputation"
         value={
           scores.charm + (scores.charmMods || [])
           .reduce((carry, {value}) => carry + value, 0) +
@@ -491,8 +492,8 @@ const _CharacterScores = ({scores}) => (
           .reduce((carry, {value}) => carry + value, 0)
         }
         mods={(scores.reputationMods || [])}
-        attribute="charm" standing="influence" /></Grid.Row>
-      <Grid.Row><_AttributeScore label="Willpower" score="willpower"
+        attribute="charm" standing="influence" />
+      <_AttributeScore label="Willpower" score="willpower"
         value={
           scores.wits + (scores.witsMods || [])
           .reduce((carry, {value}) => carry + value, 0) +
@@ -502,8 +503,9 @@ const _CharacterScores = ({scores}) => (
           .reduce((carry, {value}) => carry + value, 0)
         }
         mods={(scores.willpowerMods || [])}
-        attribute="wits" standing="spirit" /></Grid.Row>
+        attribute="wits" standing="spirit" />
     </Grid.Column>
+    </Grid.Row>
     </Grid>
   </div>
 );
@@ -511,28 +513,30 @@ const _CharacterScores = ({scores}) => (
 const CharacterScores = ({id}) => (
   <div className={styles.scores}>
     <Header>Scores</Header>
-    <Grid columns={15}>
-    <Grid.Column width={5}>
-      <Grid.Row><Header>Attributes</Header></Grid.Row>
-      <Grid.Row><AttributeScore id={id} label="Physique" score="physique" /></Grid.Row>
-      <Grid.Row><AttributeScore id={id} label="Charm" score="charm" /></Grid.Row>
-      <Grid.Row><AttributeScore id={id} label="Wits" score="wits" /></Grid.Row>
+    <Grid>
+    <Grid.Row columns={3}>
+    <Grid.Column>
+      <Header>Attributes</Header>
+      <AttributeScore id={id} label="Physique" score="physique" />
+      <AttributeScore id={id} label="Charm" score="charm" />
+      <AttributeScore id={id} label="Wits" score="wits" />
     </Grid.Column>
-    <Grid.Column width={5}>
-      <Grid.Row><Header>Standing</Header></Grid.Row>
-      <Grid.Row><AttributeScore id={id} label="Resources" score="resources" /></Grid.Row>
-      <Grid.Row><AttributeScore id={id} label="Influence" score="influence" /></Grid.Row>
-      <Grid.Row><AttributeScore id={id} label="Spirit" score="spirit" /></Grid.Row>
+    <Grid.Column>
+      <Header>Standing</Header>
+      <AttributeScore id={id} label="Resources" score="resources" />
+      <AttributeScore id={id} label="Influence" score="influence" />
+      <AttributeScore id={id} label="Spirit" score="spirit" />
     </Grid.Column>
-    <Grid.Column width={5}>
-      <Grid.Row><Header>Resilience</Header></Grid.Row>
-      <Grid.Row><ResilienceScore id={id} label="Health" score="health"
-        attribute="physique" standing="resources" /></Grid.Row>
-      <Grid.Row><ResilienceScore id={id} label="Reputation" score="reputation"
-        attribute="charm" standing="influence" /></Grid.Row>
-      <Grid.Row><ResilienceScore id={id} label="Willpower" score="willpower"
-        attribute="wits" standing="spirit" /></Grid.Row>
+    <Grid.Column>
+      <Header>Resilience</Header>
+      <ResilienceScore id={id} label="Health" score="health"
+        attribute="physique" standing="resources" />
+      <ResilienceScore id={id} label="Reputation" score="reputation"
+        attribute="charm" standing="influence" />
+      <ResilienceScore id={id} label="Willpower" score="willpower"
+        attribute="wits" standing="spirit" />
     </Grid.Column>
+    </Grid.Row>
     </Grid>
   </div>
 );
@@ -667,7 +671,7 @@ const _Power = ({
     <Grid.Column width={4}><_Stunt stunt={stunt} /></Grid.Column>)
     }
     {newStunt ? 
-    <Grid.Column width={4}><Button icon="add" content="Add Stunt" onClick={newStunt} /></Grid.Column> : null}
+    <Grid.Column width={16}><Button icon="add" content="Add Stunt" onClick={newStunt} /></Grid.Column> : null}
   </Grid.Row>
   </Grid>
 );
